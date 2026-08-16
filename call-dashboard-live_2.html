@@ -1,0 +1,1207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Call Dashboard — MWHC / MGUH Dermatology</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F6F3F7; --paper-2:#EDE7F1; --card:#FFFFFF;
+  --ink:#2B2140; --ink-2:#6C6280; --ink-3:#9A91A8;
+  --rule:#E5DEEA; --rule-2:#F0EBF3;
+  --eosin:#C74B72; --eosin-2:#F8DEE6; --eosin-3:#FBEFF3;
+  --hema:#4B54A0; --hema-2:#E3E5F7;
+  --quiet:#B6AEC2; --quiet-2:#F1EDF4;
+  --gold:#9E7327; --gold-2:#FAF2E2; --live:#3E8E6E;
+  --sans:"IBM Plex Sans",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,monospace;
+  --serif:"Instrument Serif","Iowan Old Style",Georgia,serif;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;font-family:var(--sans);color:var(--ink);font-size:15px;line-height:1.5;
+  background:linear-gradient(178deg,var(--paper) 0%,var(--paper-2) 100%);background-attachment:fixed}
+.wrap{max-width:1080px;margin:0 auto;padding:34px 20px 90px}
+
+.eyebrow{font-family:var(--mono);font-size:10.5px;letter-spacing:.19em;text-transform:uppercase;
+  color:var(--ink-3);display:flex;gap:9px;align-items:center;flex-wrap:wrap}
+.eyebrow .dot{width:4px;height:4px;border-radius:50%;background:var(--eosin);flex:none}
+h1{font-family:var(--serif);font-weight:400;font-size:clamp(38px,7vw,62px);line-height:.98;
+  letter-spacing:-.015em;margin:10px 0 0}
+h1 em{font-style:italic;color:var(--eosin)}
+.sub{color:var(--ink-2);font-size:14px;margin:10px 0 0;max-width:58ch}
+
+/* ---------- sync strip ---------- */
+.sync{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:18px 0 0;padding:10px 14px;
+  border:1px solid var(--rule);background:var(--card);border-radius:11px;
+  font-family:var(--mono);font-size:11px;letter-spacing:.05em;color:var(--ink-2)}
+.sync .sd{width:7px;height:7px;border-radius:50%;background:var(--quiet);flex:none}
+.sync.ok .sd{background:var(--live);box-shadow:0 0 0 3px rgba(62,142,110,.16)}
+.sync.warn{border-color:#EBD9AE;background:var(--gold-2);color:var(--gold)}
+.sync.warn .sd{background:var(--gold)}
+.sync.err{border-color:var(--eosin-2);background:var(--eosin-3);color:var(--eosin)}
+.sync.err .sd{background:var(--eosin)}
+.sync.load .sd{background:var(--hema);animation:pulse 1.1s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.25}50%{opacity:1}}
+.sync .grow{flex:1 1 auto}
+.sync a{color:inherit}
+.btn{font-family:var(--mono);font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;
+  padding:5px 11px;border-radius:999px;border:1px solid currentColor;background:transparent;
+  color:inherit;cursor:pointer;opacity:.8;transition:.15s}
+.btn:hover{opacity:1}
+.syncdetail{font-family:var(--sans);font-size:12.5px;letter-spacing:0;line-height:1.55;
+  flex:1 1 100%;margin-top:2px;text-transform:none}
+.syncdetail code{font-family:var(--mono);font-size:11px;background:rgba(0,0,0,.05);padding:1px 5px;border-radius:4px}
+
+.yearbar{display:flex;gap:6px;margin:16px 0 0;flex-wrap:wrap;align-items:center}
+.yr{font-family:var(--mono);font-size:12px;letter-spacing:.06em;padding:8px 14px;border:1px solid var(--rule);
+  background:var(--card);color:var(--ink-2);border-radius:999px;cursor:pointer;transition:.16s}
+.yr:hover{border-color:var(--eosin);color:var(--eosin)}
+.yr[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
+.yr .tag{font-size:9.5px;opacity:.65;margin-left:6px;letter-spacing:.1em}
+
+.pager{background:var(--ink);color:#EDE9F3;border-radius:12px;padding:14px 18px;margin:16px 0 0;
+  display:flex;gap:26px;align-items:center;flex-wrap:wrap;box-shadow:0 1px 0 rgba(43,33,64,.12)}
+.pager .pl{font-family:var(--mono);font-size:9.5px;letter-spacing:.19em;text-transform:uppercase;
+  color:#9A8FB4;display:block;margin-bottom:3px}
+.pager .pv{font-family:var(--mono);font-size:15px;font-weight:500;letter-spacing:.04em}
+.pager .pv b{color:#F2A9C0;font-weight:600}
+.pager .pv .sep{color:#6B6087;margin:0 7px}
+.pager .queue{font-family:var(--mono);font-size:11.5px;color:#B6ACCB;letter-spacing:.03em}
+.pager .queue b{color:#EDE9F3;font-weight:600}
+
+.pickwrap{margin:26px 0 0;background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:15px 16px 14px}
+.pickhead{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:11px}
+.pickhead .lbl{font-family:var(--mono);font-size:10px;letter-spacing:.17em;text-transform:uppercase;color:var(--ink-3)}
+.picks{display:flex;gap:6px;flex-wrap:wrap}
+.pk{font-family:var(--mono);font-size:13px;font-weight:600;letter-spacing:.07em;padding:8px 12px;
+  border:1px solid var(--rule);background:var(--card);color:var(--ink-2);border-radius:9px;cursor:pointer;
+  transition:.15s;display:flex;align-items:baseline;gap:6px}
+.pk:hover{border-color:var(--eosin);color:var(--eosin)}
+.pk .ct{font-size:9.5px;font-weight:400;color:var(--ink-3);letter-spacing:.05em}
+.pk[aria-pressed="true"]{background:var(--eosin);border-color:var(--eosin);color:#fff}
+.pk[aria-pressed="true"] .ct{color:rgba(255,255,255,.72)}
+.pk.absent{opacity:.4}
+.pk.all{font-weight:500;letter-spacing:.04em}
+.pk.all[aria-pressed="true"]{background:var(--ink);border-color:var(--ink)}
+
+.hero{display:grid;grid-template-columns:1.1fr 1fr;gap:14px;margin:14px 0 0;align-items:stretch}
+@media(max-width:760px){.hero{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:20px 22px}
+.next{border-color:var(--eosin-2);background:linear-gradient(160deg,#fff 0%,var(--eosin-3) 100%);
+  position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:center}
+.next:before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--eosin)}
+.next.neutral{border-color:var(--rule);background:var(--card)}
+.next.neutral:before{background:var(--quiet)}
+.lbl{font-family:var(--mono);font-size:10px;letter-spacing:.17em;text-transform:uppercase;color:var(--ink-3)}
+.countdown{font-family:var(--serif);font-size:clamp(40px,8vw,60px);line-height:1;margin:8px 0 2px;
+  color:var(--eosin);letter-spacing:-.02em}
+.countdown.sm{font-size:32px}
+.countdown small{font-family:var(--sans);font-size:15px;color:var(--ink-2);letter-spacing:0;margin-left:8px}
+.nextdate{font-family:var(--mono);font-size:16px;font-weight:500;margin-top:6px}
+.nextmeta{font-size:13px;color:var(--ink-2);margin-top:4px}
+.mini{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--rule);
+  border:1px solid var(--rule);border-radius:14px;overflow:hidden}
+.mini > div{background:var(--card);padding:13px 15px}
+.mini .num{font-family:var(--serif);font-size:30px;line-height:1;margin-top:3px}
+.mini .num.pink{color:var(--eosin)} .mini .num.blue{color:var(--hema)}
+.mini .cap{font-size:11px;color:var(--ink-3);margin-top:2px;line-height:1.35}
+.holistrip{margin:12px 0 0;font-size:12.5px;color:var(--ink-2);display:flex;gap:7px;align-items:center;flex-wrap:wrap}
+
+.section{margin:40px 0 0}
+.shead{display:flex;justify-content:space-between;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:12px}
+h2{font-family:var(--serif);font-weight:400;font-size:25px;margin:0;letter-spacing:-.01em}
+.hint{font-size:12px;color:var(--ink-3)}
+.ribbon-card{padding:18px 20px 14px}
+.ribbon{display:flex;align-items:flex-end;gap:0;height:64px;position:relative}
+.tick{flex:1 1 auto;min-width:2px;border-radius:2px 2px 0 0;background:var(--quiet-2);
+  box-shadow:inset -1.5px 0 0 var(--card);height:22%;cursor:pointer;
+  transition:height .16s,background .16s;position:relative}
+.tick:hover{background:var(--ink-3)}
+.tick.me{background:var(--eosin);height:100%}
+.tick.mb{background:var(--hema);height:52%}
+.tick.past{opacity:.34}
+.tick.today-mark:after{content:"";position:absolute;left:50%;top:-11px;width:1px;height:9px;background:var(--ink);transform:translateX(-50%)}
+.ribscale{display:flex;gap:0;margin-top:8px;border-top:1px solid var(--rule-2);padding-top:6px}
+.ribscale span{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;color:var(--ink-3);
+  text-align:left;text-transform:uppercase;overflow:hidden}
+.legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;font-size:11.5px;color:var(--ink-2)}
+.legend i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:6px;vertical-align:baseline}
+
+.controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:0 0 12px}
+.chip{font-family:var(--mono);font-size:11.5px;letter-spacing:.04em;padding:6px 11px;border-radius:999px;
+  border:1px solid var(--rule);background:var(--card);color:var(--ink-2);cursor:pointer;transition:.15s}
+.chip:hover{border-color:var(--ink-3);color:var(--ink)}
+.chip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
+.months{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:16px}
+.month{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:14px 14px 12px;scroll-margin-top:16px}
+.mtitle{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:9px}
+.mtitle b{font-family:var(--serif);font-weight:400;font-size:19px}
+.mtitle .yr4{font-family:var(--mono);font-size:10px;color:var(--ink-3);letter-spacing:.12em}
+.dow{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:4px}
+.dow span{font-family:var(--mono);font-size:9px;color:var(--ink-3);text-align:center;letter-spacing:.06em}
+.week{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:3px}
+.blk{border-radius:6px;padding:5px 6px 6px;min-height:44px;border:1px solid transparent;background:var(--quiet-2);
+  display:flex;flex-direction:column;justify-content:space-between;transition:.15s}
+.blk.mw{grid-column:span 3} .blk.ts{grid-column:span 4}
+.blk .days{display:flex;justify-content:space-between;font-family:var(--mono);font-size:9px;color:var(--ink-3)}
+.blk .who{font-family:var(--mono);font-size:13px;font-weight:600;letter-spacing:.05em;color:var(--ink-2);margin-top:3px;word-break:break-word}
+.blk .bk{font-family:var(--mono);font-size:9px;color:var(--ink-3);letter-spacing:.04em}
+.blk .note{font-size:8.5px;color:var(--gold);line-height:1.25;margin-top:2px}
+.blk.me{background:var(--eosin-2);border-color:var(--eosin)}
+.blk.me .who{color:var(--eosin)}
+.blk.mb{background:var(--hema-2);border-color:var(--hema-2)}
+.blk.mb .who{color:var(--hema)}
+.blk.past{opacity:.42}
+.blk.today{box-shadow:0 0 0 2px var(--ink)}
+.blk.empty{background:transparent;border:1px dashed var(--rule-2)}
+.dimmed .blk:not(.me):not(.mb){opacity:.26}
+.dimmed .blk.past{opacity:.16}
+
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th{font-family:var(--mono);font-size:9.5px;letter-spacing:.15em;text-transform:uppercase;color:var(--ink-3);
+  text-align:left;font-weight:500;padding:0 10px 8px;border-bottom:1px solid var(--rule)}
+td{padding:10px;border-bottom:1px solid var(--rule-2);vertical-align:top}
+tr:last-child td{border-bottom:none}
+tr.done td{color:var(--ink-3)}
+tr.linked td{border-bottom-color:transparent}
+td.dt{font-family:var(--mono);font-size:13px;white-space:nowrap}
+td.kind{font-family:var(--mono);font-size:10.5px;color:var(--ink-3);letter-spacing:.06em}
+.pill{font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;padding:2px 7px;border-radius:999px;
+  background:var(--eosin-3);color:var(--eosin);text-transform:uppercase;white-space:nowrap;display:inline-block}
+.pill.gold{background:var(--gold-2);color:var(--gold)}
+.pill.grey{background:var(--quiet-2);color:var(--ink-3)}
+.pill.blue{background:var(--hema-2);color:var(--hema)}
+.pill.solid{background:var(--eosin);color:#fff}
+
+.loads{display:flex;flex-direction:column;gap:7px}
+.load{display:grid;grid-template-columns:52px 1fr 76px;align-items:center;gap:10px;cursor:pointer}
+.load .ini{font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:.06em;color:var(--ink-2);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.load .track{height:9px;background:var(--quiet-2);border-radius:999px;overflow:hidden}
+.load .fill{height:100%;background:var(--quiet);border-radius:999px;transition:width .5s cubic-bezier(.2,.7,.3,1)}
+.load .n{font-family:var(--mono);font-size:11.5px;color:var(--ink-3);text-align:right}
+.load .n em{font-style:normal;opacity:.7;font-size:10px}
+.load:hover .ini{color:var(--ink)}
+.load.me .ini,.load.me .n{color:var(--eosin)}
+.load.me .fill{background:var(--eosin)}
+
+.notes{font-size:12.5px;color:var(--ink-2);line-height:1.65}
+.notes b{color:var(--ink);font-weight:600}
+.notes ul{margin:8px 0 0;padding-left:18px}
+.notes li{margin-bottom:5px}
+.notes code{font-family:var(--mono);font-size:11.5px;background:var(--quiet-2);padding:1px 5px;border-radius:4px}
+footer{margin-top:34px;padding-top:16px;border-top:1px solid var(--rule);font-family:var(--mono);font-size:10px;
+  letter-spacing:.11em;color:var(--ink-3);text-transform:uppercase;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+footer a{color:inherit}
+details.diag,details.paste{margin:10px 0 0;border:1px solid var(--rule);background:var(--card);
+  border-radius:11px;padding:10px 14px}
+details.diag summary,details.paste summary{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--ink-3);cursor:pointer;list-style:none}
+details.diag summary::-webkit-details-marker,details.paste summary::-webkit-details-marker{display:none}
+details.diag summary:before,details.paste summary:before{content:"▸ ";color:var(--eosin)}
+details[open].diag summary:before,details[open].paste summary:before{content:"▾ "}
+details.diag summary:hover,details.paste summary:hover{color:var(--ink)}
+.pnote{font-size:12.5px;color:var(--ink-2);margin:11px 0 8px;line-height:1.55;max-width:70ch}
+#pastearea{width:100%;font-family:var(--mono);font-size:11px;line-height:1.45;padding:9px 11px;
+  border:1px solid var(--rule);border-radius:8px;background:var(--paper);color:var(--ink);resize:vertical}
+.prow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:9px}
+#filepick{font-family:var(--mono);font-size:11px;color:var(--ink-2);margin-top:2px;max-width:100%}
+#filepick::file-selector-button{font-family:var(--mono);font-size:10.5px;letter-spacing:.09em;
+  text-transform:uppercase;padding:6px 12px;margin-right:10px;border:1px solid var(--ink);
+  border-radius:999px;background:transparent;color:var(--ink);cursor:pointer}
+#filepick::file-selector-button:hover{background:var(--ink);color:#fff}
+.btn.dark{border-color:var(--ink);color:var(--ink);opacity:1}
+.btn.dark:hover{background:var(--ink);color:#fff}
+.pmsg{font-family:var(--mono);font-size:11px;color:var(--ink-3)}
+.pmsg.good{color:var(--live)} .pmsg.bad{color:var(--eosin)}
+.dtable{font-family:var(--mono);font-size:10.5px;margin-top:10px;width:100%;border-collapse:collapse}
+.dtable td{padding:5px 8px 5px 0;border-bottom:1px solid var(--rule-2);vertical-align:top;
+  word-break:break-all;color:var(--ink-2)}
+.dtable td.t{white-space:nowrap;color:var(--ink);width:1%}
+.dtable td.o{white-space:nowrap;width:1%;text-align:right}
+.dtable td.o.bad{color:var(--eosin)} .dtable td.o.good{color:var(--live)}
+.dsum{font-size:12.5px;color:var(--ink-2);margin-top:10px;line-height:1.55}
+#app[hidden]{display:none}
+.boot{margin-top:26px;color:var(--ink-3);font-family:var(--mono);font-size:12px;letter-spacing:.06em}
+:focus-visible{outline:2px solid var(--eosin);outline-offset:2px;border-radius:4px}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+@media print{body{background:#fff}.controls,.yearbar,.picks,.sync,footer{display:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="eyebrow"><span class="dot"></span> MedStar Washington Hospital Center · MedStar Georgetown</div>
+  <h1>Who's on <em>call</em>.</h1>
+  <p class="sub">Reads the shared Google Sheet directly. Pick your initials and the page reorients around you — next block, days owed, back-to-back stretches, and where you sit against everyone else.</p>
+
+  <div class="sync load" id="sync"><span class="sd"></span><span id="syncmsg">Reading the sheet…</span></div>
+
+  <details class="diag" id="diagbox" hidden>
+    <summary>What each URL returned</summary>
+    <div id="diagbody"></div>
+  </details>
+
+  <details class="paste" id="pastebox">
+    <summary>Use a file instead</summary>
+    <p class="pnote">Open the tab in Google Sheets, click any cell, <b>Ctrl/Cmd&nbsp;+&nbsp;A</b> then
+      <b>Ctrl/Cmd&nbsp;+&nbsp;C</b>, and paste below. One tab at a time; paste another to add it.
+      This works no matter how the sheet is shared, because nothing is fetched.</p>
+    <textarea id="pastearea" rows="5" placeholder="Paste the copied cells here…"></textarea>
+    <div class="prow">
+      <button class="btn dark" type="button" id="pasteload">Load pasted tab</button>
+      <span class="pmsg" id="pastemsg"></span>
+    </div>
+    <p class="pnote" style="margin-top:14px">Or open a file. A downloaded <code>.xlsx</code> brings
+      every tab at once; a <code>.csv</code> brings one.</p>
+    <input id="filepick" type="file" accept=".xlsx,.csv,.tsv,.txt">
+  </details>
+
+  <div id="boot" class="boot">Fetching tabs…</div>
+
+  <div id="app" hidden>
+    <div class="yearbar" id="yearbar"></div>
+    <div class="pager" id="pager"></div>
+
+    <div class="pickwrap">
+      <div class="pickhead"><span class="lbl">Pick your initials</span><span class="hint" id="pickhint"></span></div>
+      <div class="picks" id="picks"></div>
+    </div>
+
+    <div class="hero">
+      <div class="card next" id="nextcard"></div>
+      <div class="mini" id="mini"></div>
+    </div>
+    <div class="holistrip" id="holistrip"></div>
+
+    <section class="section">
+      <div class="shead"><h2>The year at a glance</h2>
+        <span class="hint">One tick per block, in order. Click a tick to jump to that month.</span></div>
+      <div class="card ribbon-card">
+        <div class="ribbon" id="ribbon"></div>
+        <div class="ribscale" id="ribscale"></div>
+        <div class="legend" id="ribleg"></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="shead"><h2>Calendar</h2><span class="hint" id="filterhint"></span></div>
+      <div class="controls" id="controls"></div>
+      <div class="months" id="months"></div>
+    </section>
+
+    <section class="section">
+      <div class="shead"><h2 id="mineTitle">Blocks</h2><span class="hint" id="mineHint"></span></div>
+      <div class="card" style="padding:16px 12px 8px"><table id="minetable"></table></div>
+    </section>
+
+    <section class="section">
+      <div class="shead"><h2>Call blocks per resident</h2><span class="hint" id="loadhint"></span></div>
+      <div class="card"><div class="loads" id="loads"></div></div>
+    </section>
+
+    <section class="section">
+      <div class="shead"><h2>Read before you trust it</h2></div>
+      <div class="card notes" id="notes"></div>
+    </section>
+  </div>
+
+  <footer>
+    <span><a id="srclink" href="#" target="_blank" rel="noopener">Open the source sheet</a></span>
+    <span id="stamp"></span>
+  </footer>
+</div>
+
+<script>
+/* ============================================================
+   CONFIG — the only part you should ever need to edit
+   ============================================================ */
+const SHEET_ID = "173XX_tF3VwUQc26E8PbQPoxHg4SMBp8Mc-lbFbOVCa0";
+
+/* Tab names exactly as they appear on the tab strip, newest first.
+   Names that don't exist yet are skipped silently — so you can pre-list
+   future years and they'll appear on their own once someone creates them. */
+const TABS = ["Call 27-28", "Call 26-27", "Call 25-26", "Call 24-25"];
+
+/* Optional fallback: tab name -> gid (from the #gid= in the sheet URL).
+   Only needed if fetching by name fails for a tab. */
+const GIDS = { "Call 25-26": "57765413" };
+
+/* Most reliable source. File > Share > Publish to web > pick the tab > CSV > Publish,
+   then paste the resulting link here. Those URLs contain "/d/e/2PACX-" and are the
+   only Google endpoint that reliably allows a web page to read them. */
+const PUB = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ4tZH-I3yDo-V4-3ptLHvalcj1vcGSt1zIBOR_dkwKstcft3gIytPbIhMHstcIdT7YlMjQpZRIQ6Ek/pub";
+
+/* PRIMARY SOURCE — the whole document as one file, every tab included.
+   This is what "Publish to web > Entire Document > Microsoft Excel" produces.
+   New tabs are picked up automatically; nothing here needs editing when a year
+   is added. Note that publishing the entire document turns OFF the per-tab CSV
+   endpoints, so the two options below are mutually exclusive. */
+const WORKBOOK_XLSX = PUB+"?output=xlsx";
+
+/* FALLBACK — only used if the workbook can't be read. Applies when a single tab
+   is published as CSV instead of the whole document. */
+const PUBLISHED_CSV = {
+  // "Call 26-27": PUB+"?output=csv",
+};
+
+const DEFAULT_PERSON = "BW";
+const REFRESH_ON_FOCUS = true;   // re-pull when you come back to the tab
+/* ========================================================== */
+
+const SNAPSHOT = {"AY 25-26":[{"s":"2025-09-04","e":"2025-09-07","k":"TS","c":"AT","b":"MM","w":"","n":"AADA Legis","f":"","raw":"Sep 4\u2013Sep 7, 2025 (AADA Legis)"},{"s":"2025-09-08","e":"2025-09-10","k":"MW","c":"CK","b":"RK","w":"Rachel Ruda","n":"","f":"","raw":"Sep 8\u2013Sep 10, 2025"},{"s":"2025-09-11","e":"2025-09-14","k":"TS","c":"CK","b":"RK","w":"Rachel Ruda","n":"","f":"","raw":"Sep 11\u2013Sep 14, 2025"},{"s":"2025-09-15","e":"2025-09-17","k":"MW","c":"MM","b":"CP","w":"Rachel Ruda","n":"","f":"","raw":"Sep 15\u2013Sep 17, 2025"},{"s":"2025-09-18","e":"2025-09-21","k":"TS","c":"MM","b":"CP","w":"Rachel Ruda","n":"","f":"","raw":"Sep 18\u2013Sep 21, 2025"},{"s":"2025-09-22","e":"2025-09-24","k":"MW","c":"JP","b":"MM","w":"","n":"","f":"","raw":"Sep 22\u2013Sep 24, 2025"},{"s":"2025-09-25","e":"2025-09-28","k":"TS","c":"JP","b":"MM","w":"","n":"","f":"","raw":"Sep 25\u2013Sep 28, 2025"},{"s":"2025-09-29","e":"2025-10-01","k":"MW","c":"CW","b":"MM","w":"","n":"","f":"","raw":"Sep 29\u2013Oct 1, 2025"},{"s":"2025-10-02","e":"2025-10-05","k":"TS","c":"CW","b":"MM","w":"","n":"","f":"","raw":"Oct 2\u2013Oct 5, 2025 (SOC) - 2nd or 3rd year"},{"s":"2025-10-06","e":"2025-10-08","k":"MW","c":"AT","b":"CP","w":"Maebob Enokenwa","n":"","f":"","raw":"Oct 6\u2013Oct 8, 2025"},{"s":"2025-10-09","e":"2025-10-12","k":"TS","c":"JP","b":"CP","w":"Maebob Enokenwa","n":"","f":"","raw":"Oct 9\u2013Oct 12, 2025"},{"s":"2025-10-13","e":"2025-10-15","k":"MW","c":"CK","b":"SM","w":"Michael Stanley","n":"","f":"","raw":"Oct 13\u2013Oct 15, 2025"},{"s":"2025-10-16","e":"2025-10-19","k":"TS","c":"CK","b":"SM","w":"Michael Stanley","n":"","f":"","raw":"Oct 16\u2013Oct 19, 2025"},{"s":"2025-10-20","e":"2025-10-22","k":"MW","c":"CW","b":"MM","w":"","n":"","f":"","raw":"Oct 20\u2013Oct 22, 2025"},{"s":"2025-10-23","e":"2025-10-26","k":"TS","c":"CW","b":"AG","w":"","n":"","f":"","raw":"Oct 23\u2013Oct 26, 2025"},{"s":"2025-10-27","e":"2025-10-29","k":"MW","c":"JP","b":"ML","w":"","n":"","f":"","raw":"Oct 27\u2013Oct 29, 2025"},{"s":"2025-10-30","e":"2025-11-02","k":"TS","c":"JP","b":"ML","w":"","n":"","f":"","raw":"Oct 30\u2013Nov 2, 2025"},{"s":"2025-11-03","e":"2025-11-05","k":"MW","c":"BW","b":"AG","w":"","n":"","f":"","raw":"Nov 3\u2013Nov 5, 2025"},{"s":"2025-11-06","e":"2025-11-09","k":"TS","c":"CK","b":"AG","w":"","n":"","f":"","raw":"Nov 6\u2013Nov 9, 2025"},{"s":"2025-11-10","e":"2025-11-12","k":"MW","c":"CP","b":"ML","w":"Joshua Smith","n":"","f":"","raw":"Nov 10\u2013Nov 12, 2025"},{"s":"2025-11-13","e":"2025-11-16","k":"TS","c":"CK","b":"ML","w":"Joshua Smith","n":"ASDS","f":"","raw":"Nov 13\u2013Nov 16, 2025 (ASDS)"},{"s":"2025-11-17","e":"2025-11-19","k":"MW","c":"JP","b":"SM","w":"Joshua Smith","n":"","f":"","raw":"Nov 17\u2013Nov 19, 2025"},{"s":"2025-11-20","e":"2025-11-23","k":"TS","c":"RK","b":"SM","w":"Joshua Smith","n":"","f":"","raw":"Nov 20\u2013Nov 23, 2025"},{"s":"2025-11-24","e":"2025-11-26","k":"MW","c":"JP","b":"TH","w":"","n":"","f":"","raw":"Nov 24\u2013Nov 26, 2025"},{"s":"2025-11-27","e":"2025-11-30","k":"TS","c":"JP","b":"TH","w":"","n":"Thanksgiving","f":"","raw":"Nov 27\u2013Nov 30, 2025 (Thanksgiving)"},{"s":"2025-12-01","e":"2025-12-03","k":"MW","c":"BW","b":"ML","w":"","n":"","f":"","raw":"Dec 1\u2013Dec 3, 2025"},{"s":"2025-12-04","e":"2025-12-07","k":"TS","c":"BW","b":"ML","w":"","n":"","f":"","raw":"Dec 4\u2013Dec 7, 2025"},{"s":"2025-12-08","e":"2025-12-10","k":"MW","c":"AT","b":"MM","w":"","n":"","f":"","raw":"Dec 8\u2013Dec 10, 2025"},{"s":"2025-12-11","e":"2025-12-14","k":"TS","c":"AT","b":"MM","w":"","n":"","f":"","raw":"Dec 11\u2013Dec 14, 2025"},{"s":"2025-12-15","e":"2025-12-17","k":"MW","c":"CK","b":"ML","w":"","n":"","f":"","raw":"Dec 15\u2013Dec 17, 2025"},{"s":"2025-12-18","e":"2025-12-21","k":"TS","c":"CK","b":"ML","w":"","n":"","f":"","raw":"Dec 18\u2013Dec 21, 2025"},{"s":"2025-12-22","e":"2025-12-24","k":"MW","c":"AT","b":"CK","w":"","n":"","f":"","raw":"Dec 22\u2013Dec 24, 2025"},{"s":"2025-12-25","e":"2025-12-28","k":"TS","c":"AT","b":"CK","w":"","n":"Xmas","f":"","raw":"Dec 25\u2013Dec 28, 2025 (Xmas)"},{"s":"2025-12-29","e":"2025-12-31","k":"MW","c":"BW","b":"JP","w":"","n":"","f":"","raw":"Dec 29\u2013Dec 31, 2025"},{"s":"2026-01-01","e":"2026-01-04","k":"TS","c":"BW","b":"JP","w":"","n":"New years","f":"","raw":"Jan 1\u2013Jan 4, 2026 (New years)"},{"s":"2026-01-05","e":"2026-01-07","k":"MW","c":"AT","b":"RK","w":"","n":"","f":"","raw":"Jan 5\u2013Jan 7, 2026"},{"s":"2026-01-08","e":"2026-01-11","k":"TS","c":"JP","b":"RK","w":"","n":"","f":"","raw":"Jan 8\u2013Jan 11, 2026"},{"s":"2026-01-12","e":"2026-01-14","k":"MW","c":"TH","b":"CP","w":"Sidney Harrison","n":"","f":"","raw":"Jan 12\u2013Jan 14, 2026"},{"s":"2026-01-15","e":"2026-01-18","k":"TS","c":"BW","b":"CP","w":"Sidney Harrison","n":"","f":"","raw":"Jan 15\u2013Jan 18, 2026"},{"s":"2026-01-19","e":"2026-01-21","k":"MW","c":"AT","b":"CK","w":"Bailey Lewis","n":"MLK","f":"","raw":"Jan 19\u2013Jan 21, 2026 (MLK)"},{"s":"2026-01-22","e":"2026-01-25","k":"TS","c":"MM","b":"JP","w":"Bailey Lewis","n":"","f":"","raw":"Jan 22\u2013Jan 25, 2026"},{"s":"2026-01-26","e":"2026-01-28","k":"MW","c":"BW","b":"AG","w":"","n":"","f":"","raw":"Jan 26\u2013Jan 28, 2026"},{"s":"2026-01-29","e":"2026-02-01","k":"TS","c":"AG","b":"AG","w":"","n":"","f":"","raw":"Jan 29\u2013Feb 1, 2026"},{"s":"2026-02-02","e":"2026-02-04","k":"MW","c":"CK","b":"AG","w":"","n":"","f":"","raw":"Feb 2\u2013Feb 4, 2026"},{"s":"2026-02-05","e":"2026-02-08","k":"TS","c":"AT","b":"AG","w":"","n":"","f":"","raw":"Feb 5\u2013Feb 8, 2026"},{"s":"2026-02-09","e":"2026-02-11","k":"MW","c":"TH","b":"CP","w":"Lourdes Lopez","n":"","f":"","raw":"Feb 9\u2013Feb 11, 2026"},{"s":"2026-02-12","e":"2026-02-15","k":"TS","c":"AG","b":"SM","w":"Lourdes Lopez","n":"","f":"","raw":"Feb 12\u2013Feb 15, 2026"},{"s":"2026-02-16","e":"2026-02-18","k":"MW","c":"ML","b":"SM","w":"Russell Newkirk","n":"","f":"","raw":"Feb 16\u2013Feb 18, 2026"},{"s":"2026-02-19","e":"2026-02-22","k":"TS","c":"ML","b":"SM","w":"Russell Newkirk","n":"","f":"","raw":"Feb 19\u2013Feb 22, 2026"},{"s":"2026-02-23","e":"2026-02-25","k":"MW","c":"CK","b":"AG","w":"","n":"","f":"","raw":"Feb 23\u2013Feb 25, 2026"},{"s":"2026-02-26","e":"2026-03-01","k":"TS","c":"AT","b":"AG","w":"","n":"","f":"","raw":"Feb 26\u2013Mar 1, 2026"},{"s":"2026-03-02","e":"2026-03-04","k":"MW","c":"JP","b":"ML","w":"","n":"","f":"","raw":"Mar 2\u2013Mar 4, 2026"},{"s":"2026-03-05","e":"2026-03-08","k":"TS","c":"AT","b":"ML","w":"","n":"","f":"","raw":"Mar 5\u2013Mar 8, 2026"},{"s":"2026-03-09","e":"2026-03-11","k":"MW","c":"MM","b":"SM","w":"Maria Munoz","n":"","f":"","raw":"Mar 9\u2013Mar 11, 2026"},{"s":"2026-03-12","e":"2026-03-15","k":"TS","c":"CK","b":"CP","w":"Maria Munoz","n":"","f":"","raw":"Mar 12\u2013Mar 15, 2026"},{"s":"2026-03-16","e":"2026-03-18","k":"MW","c":"CK","b":"SM","w":"Rachel Flint","n":"","f":"","raw":"Mar 16\u2013Mar 18, 2026"},{"s":"2026-03-19","e":"2026-03-22","k":"TS","c":"RK","b":"SM","w":"Rachel Flint","n":"","f":"","raw":"Mar 19\u2013Mar 22, 2026"},{"s":"2026-03-23","e":"2026-03-25","k":"MW","c":"AT","b":"BW","w":"","n":"","f":"","raw":"Mar 23\u2013Mar 25, 2026"},{"s":"2026-03-26","e":"2026-03-29","k":"TS","c":"CK","b":"CW","w":"","n":"AAD","f":"","raw":"Mar 26\u2013Mar 29, 2026 (AAD)"},{"s":"2026-03-30","e":"2026-04-01","k":"MW","c":"BW","b":"CW","w":"","n":"","f":"","raw":"Mar 30\u2013Apr 1, 2026"},{"s":"2026-04-02","e":"2026-04-05","k":"TS","c":"BW","b":"CW","w":"","n":"","f":"","raw":"Apr 2\u2013Apr 5, 2026"},{"s":"2026-04-06","e":"2026-04-08","k":"MW","c":"AT","b":"TH","w":"","n":"","f":"","raw":"Apr 6\u2013Apr 8, 2026"},{"s":"2026-04-09","e":"2026-04-12","k":"TS","c":"AT","b":"TH","w":"","n":"","f":"","raw":"Apr 9\u2013Apr 12, 2026"},{"s":"2026-04-13","e":"2026-04-15","k":"MW","c":"SM","b":"CP","w":"Ariel Yi","n":"","f":"","raw":"Apr 13\u2013Apr 15, 2026"},{"s":"2026-04-16","e":"2026-04-19","k":"TS","c":"CP","b":"RK","w":"Ariel Yi","n":"","f":"","raw":"Apr 16\u2013Apr 19, 2026"},{"s":"2026-04-20","e":"2026-04-22","k":"MW","c":"CW","b":"RK","w":"Dana PhamHua","n":"","f":"","raw":"Apr 20\u2013Apr 22, 2026"},{"s":"2026-04-23","e":"2026-04-26","k":"TS","c":"CW","b":"RK","w":"Dana PhamHua","n":"","f":"","raw":"Apr 23\u2013Apr 26, 2026"},{"s":"2026-04-27","e":"2026-04-29","k":"MW","c":"CK","b":"TH","w":"","n":"","f":"","raw":"Apr 27\u2013Apr 29, 2026"},{"s":"2026-04-30","e":"2026-05-03","k":"TS","c":"CK","b":"TH","w":"","n":"","f":"","raw":"Apr 30\u2013May 3, 2026"},{"s":"2026-05-04","e":"2026-05-06","k":"MW","c":"AT","b":"TH","w":"","n":"","f":"","raw":"May 4\u2013May 6, 2026"},{"s":"2026-05-07","e":"2026-05-10","k":"TS","c":"BW","b":"CK","w":"","n":"ASLMS","f":"","raw":"May 7\u2013May 10, 2026 (ASLMS)"},{"s":"2026-05-11","e":"2026-05-13","k":"MW","c":"CP","b":"RK","w":"Felix Yang","n":"SID","f":"","raw":"May 11\u2013May 13, 2026 (SID)"},{"s":"2026-05-14","e":"2026-05-17","k":"TS","c":"SM","b":"AT","w":"Felix Yang","n":"SID","f":"","raw":"May 14\u2013May 17, 2026 (SID)"},{"s":"2026-05-18","e":"2026-05-20","k":"MW","c":"BW","b":"TH","w":"Felix Yang","n":"","f":"","raw":"May 18\u2013May 20, 2026"},{"s":"2026-05-21","e":"2026-05-24","k":"TS","c":"AT","b":"CK","w":"Felix Yang","n":"","f":"","raw":"May 21\u2013May 24, 2026"},{"s":"2026-05-25","e":"2026-05-27","k":"MW","c":"CK","b":"BW","w":"","n":"MDW","f":"","raw":"May 25\u2013May 27, 2026 (MDW)"},{"s":"2026-05-28","e":"2026-05-31","k":"TS","c":"JP","b":"RK","w":"","n":"","f":"","raw":"May 28\u2013May 31, 2026"},{"s":"2026-06-01","e":"2026-06-03","k":"MW","c":"JP","b":"AG","w":"","n":"","f":"","raw":"Jun 1\u2013Jun 3, 2026"},{"s":"2026-06-04","e":"2026-06-07","k":"TS","c":"BW","b":"AT","w":"","n":"","f":"","raw":"Jun 4\u2013Jun 7, 2026"},{"s":"2026-06-08","e":"2026-06-10","k":"MW","c":"RK","b":"AT","w":"Sama Alazawi","n":"","f":"","raw":"Jun 8\u2013Jun 10, 2026"},{"s":"2026-06-11","e":"2026-06-14","k":"TS","c":"AT","b":"RK","w":"Sama Alazawi","n":"","f":"","raw":"Jun 11\u2013Jun 14, 2026"},{"s":"2026-06-15","e":"2026-06-17","k":"MW","c":"AT","b":"RK","w":"","n":"","f":"","raw":"Jun 15\u2013Jun 17, 2026"},{"s":"2026-06-18","e":"2026-06-21","k":"TS","c":"BW","b":"AT","w":"","n":"","f":"","raw":"Jun 18\u2013Jun 21, 2026"},{"s":"2026-06-22","e":"2026-06-24","k":"MW","c":"JP","b":"TH","w":"","n":"","f":"","raw":"Jun 22\u2013Jun 24, 2026"},{"s":"2026-06-25","e":"2026-06-28","k":"TS","c":"JP","b":"BW","w":"","n":"","f":"","raw":"Jun 25\u2013Jun 28, 2026"},{"s":"2026-06-29","e":"2026-07-01","k":"MW","c":"CK","b":"AT","w":"","n":"","f":"","raw":"Jun 29\u2013Jul 1, 2026"},{"s":"2026-07-02","e":"2026-07-05","k":"TS","c":"CK","b":"TH","w":"","n":"4th of July","f":"","raw":"Jul 2\u2013Jul 5, 2026 (4th of July)"},{"s":"2026-07-06","e":"2026-07-08","k":"MW","c":"BW","b":"CK","w":"Harrison","n":"","f":"","raw":"Jul 6\u2013Jul 8, 2026"},{"s":"2026-07-09","e":"2026-07-12","k":"TS","c":"BW","b":"TH","w":"Harrison","n":"","f":"","raw":"Jul 9\u2013Jul 12, 2026"},{"s":"2026-07-13","e":"2026-07-15","k":"MW","c":"JP","b":"AT","w":"Munoz","n":"","f":"","raw":"Jul 13\u2013Jul 15, 2026"},{"s":"2026-07-16","e":"2026-07-19","k":"TS","c":"JP","b":"BW","w":"Munoz","n":"","f":"","raw":"Jul 16\u2013Jul 19, 2026"},{"s":"2026-07-20","e":"2026-07-22","k":"MW","c":"BW","b":"CK","w":"","n":"","f":"","raw":"Jul 20\u2013Jul 22, 2026"},{"s":"2026-07-23","e":"2026-07-26","k":"TS","c":"BW","b":"TH","w":"","n":"","f":"","raw":"Jul 23\u2013Jul 26, 2026"},{"s":"2026-07-27","e":"2026-07-29","k":"MW","c":"AT","b":"BW","w":"","n":"","f":"","raw":"Jul 27\u2013Jul 29, 2026"},{"s":"2026-07-30","e":"2026-08-02","k":"TS","c":"AT","b":"JP","w":"","n":"","f":"","raw":"Jul 30\u2013Aug 2, 2026"},{"s":"2026-08-03","e":"2026-08-05","k":"MW","c":"JP","b":"CW","w":"","n":"","f":"","raw":"Aug 3\u2013Aug 5, 2026"},{"s":"2026-08-06","e":"2026-08-09","k":"TS","c":"JP","b":"CW","w":"","n":"","f":"","raw":"Aug 6\u2013Aug 9, 2026"},{"s":"2026-08-10","e":"2026-08-12","k":"MW","c":"AT","b":"CW","w":"Ruda","n":"","f":"","raw":"Aug 10\u2013Aug 12, 2026"},{"s":"2026-08-13","e":"2026-08-16","k":"TS","c":"AT","b":"CW","w":"Ruda","n":"","f":"","raw":"Aug 13\u2013Aug 16, 2026"},{"s":"2026-08-17","e":"2026-08-19","k":"MW","c":"CK","b":"CW","w":"Yi","n":"","f":"","raw":"Aug 17\u2013Aug 19, 2026"},{"s":"2026-08-20","e":"2026-08-23","k":"TS","c":"CK","b":"CW","w":"Yi","n":"","f":"","raw":"Aug 20\u2013Aug 23, 2026"},{"s":"2026-08-24","e":"2026-08-26","k":"MW","c":"JP","b":"CW","w":"","n":"","f":"","raw":"Aug 24\u2013Aug 26, 2026"},{"s":"2026-08-27","e":"2026-08-30","k":"TS","c":"JP","b":"CW","w":"","n":"","f":"","raw":"Aug 27\u2013Aug 30, 2026"},{"s":"2026-08-31","e":"2026-09-02","k":"MW","c":"BW","b":"JP","w":"","n":"","f":"","raw":"Aug 31\u2013Sep 2, 2026"},{"s":"2026-09-03","e":"2026-09-06","k":"TS","c":"","b":"","w":"","n":"","f":"","raw":"Sep 3\u2013Sep 6, 2026"},{"s":"2026-09-07","e":"2026-09-09","k":"MW","c":"","b":"CK","w":"Brandon","n":"LDW","f":"","raw":"Sep 7\u2013Sep 9, 2026 (LDW)"},{"s":"2026-09-10","e":"2026-09-13","k":"TS","c":"","b":"JP","w":"Brandon","n":"","f":"end","raw":"Sept 10 \u2013 Sep 12, 2026"},{"s":"2026-09-14","e":"2026-09-16","k":"MW","c":"","b":"JP","w":"Brandon","n":"","f":"start","raw":"Sep 13\u2013Sep 16, 2026"}],"AY 26-27":[{"s":"2026-09-03","e":"2026-09-06","k":"TS","c":"CG","b":"","w":"","n":"","f":"","raw":"Sep 3\u2013Sep 6, 2026"},{"s":"2026-09-07","e":"2026-09-09","k":"MW","c":"MO","b":"CK","w":"Brandon (starts 9/8)","n":"LDW","f":"","raw":"Sep 7\u2013Sep 9, 2026 (LDW)"},{"s":"2026-09-10","e":"2026-09-13","k":"TS","c":"CG","b":"","w":"Brandon","n":"AADA 9/13-9/15","f":"","raw":"Sept 10 \u2013 Sep 13, 2026 (AADA 9/13-9/15)"},{"s":"2026-09-14","e":"2026-09-16","k":"MW","c":"CK","b":"JP","w":"Brandon","n":"","f":"","raw":"Sep 14\u2013Sep 16, 2026"},{"s":"2026-09-17","e":"2026-09-20","k":"TS","c":"CK","b":"JP","w":"Brandon","n":"","f":"","raw":"Sep 17\u2013Sep 20, 2026"},{"s":"2026-09-21","e":"2026-09-23","k":"MW","c":"CG","b":"","w":"","n":"","f":"","raw":"Sep 21\u2013Sep 23, 2026"},{"s":"2026-09-24","e":"2026-09-27","k":"TS","c":"SA","b":"","w":"","n":"","f":"","raw":"Sep 24\u2013Sep 27, 2026"},{"s":"2026-09-28","e":"2026-09-30","k":"MW","c":"MO","b":"","w":"","n":"","f":"","raw":"Sep 28 - Sep 30, 2026"},{"s":"2026-10-01","e":"2026-10-04","k":"TS","c":"KR","b":"","w":"","n":"","f":"","raw":"Oct 1\u2013Oct 4, 2026"},{"s":"2026-10-05","e":"2026-10-07","k":"MW","c":"BW","b":"","w":"Lewis, Swerdlick","n":"","f":"","raw":"Oct 5\u2013Oct 7, 2026"},{"s":"2026-10-08","e":"2026-10-11","k":"TS","c":"JP","b":"","w":"Lewis, Swerdlick","n":"","f":"","raw":"Oct 8\u2013Oct 11, 2026 (SOC) - 2nd or 3rd year"},{"s":"2026-10-12","e":"2026-10-14","k":"MW","c":"JP","b":"","w":"Lewis, Swerdlick","n":"","f":"","raw":"Oct 12\u2013Oct 14, 2026"},{"s":"2026-10-15","e":"2026-10-18","k":"TS","c":"JP","b":"","w":"Lewis, Swerdlick","n":"","f":"","raw":"Oct 15\u2013Oct 18, 2026"},{"s":"2026-10-19","e":"2026-10-21","k":"MW","c":"KR","b":"","w":"","n":"","f":"","raw":"Oct 19\u2013Oct 21, 2026"},{"s":"2026-10-22","e":"2026-10-25","k":"TS","c":"MO","b":"","w":"","n":"","f":"","raw":"Oct 22\u2013Oct 25, 2026"},{"s":"2026-10-26","e":"2026-10-28","k":"MW","c":"SA","b":"","w":"","n":"","f":"","raw":"Oct 26\u2013Oct 28, 2026"},{"s":"2026-10-29","e":"2026-11-01","k":"TS","c":"KR","b":"","w":"","n":"","f":"","raw":"Oct 29\u2013Nov 1, 2026"},{"s":"2026-11-02","e":"2026-11-04","k":"MW","c":"MO","b":"","w":"","n":"","f":"","raw":"Nov 2\u2013Nov 4, 2026"},{"s":"2026-11-05","e":"2026-11-08","k":"TS","c":"KR","b":"","w":"","n":"ASDS 11/5- 11/8),  (Dermoscopy- 11/6-7","f":"","raw":"Nov 5\u2013Nov 8, 2026 (ASDS 11/5- 11/8), \n(Dermoscopy- 11/6-7)"},{"s":"2026-11-09","e":"2026-11-11","k":"MW","c":"CK","b":"","w":"Sherman, Yang","n":"","f":"","raw":"Nov 9\u2013Nov 11, 2026"},{"s":"2026-11-12","e":"2026-11-15","k":"TS","c":"CK","b":"","w":"Sherman, Yang","n":"","f":"","raw":"Nov 12\u2013Nov 15, 2026"},{"s":"2026-11-16","e":"2026-11-18","k":"MW","c":"CW","b":"","w":"Sherman, Yang","n":"","f":"","raw":"Nov 16\u2013Nov 18, 2026"},{"s":"2026-11-19","e":"2026-11-22","k":"TS","c":"CW","b":"","w":"Sherman, Yang","n":"","f":"","raw":"Nov 19\u2013Nov 22, 2026"},{"s":"2026-11-23","e":"2026-11-25","k":"MW","c":"KR","b":"","w":"","n":"","f":"","raw":"Nov 23\u2013Nov 25, 2026"},{"s":"2026-11-26","e":"2026-11-29","k":"TS","c":"MO","b":"","w":"","n":"Thanksgiving","f":"end","raw":"Nov 26\u2013Nov 19, 2026 (Thanksgiving)"},{"s":"2026-11-30","e":"2026-12-02","k":"MW","c":"KR","b":"","w":"","n":"","f":"","raw":"Nov 30\u2013Dec 2, 2026"},{"s":"2026-12-03","e":"2026-12-06","k":"TS","c":"MO","b":"","w":"","n":"","f":"","raw":"Dec 3\u2013Dec 6, 2026"},{"s":"2026-12-07","e":"2026-12-09","k":"MW","c":"SA","b":"","w":"","n":"","f":"","raw":"Dec 7\u2013Dec 9, 2026"},{"s":"2026-12-10","e":"2026-12-13","k":"TS","c":"CG","b":"","w":"","n":"","f":"","raw":"Dec 10\u2013Dec 13, 2026"},{"s":"2026-12-14","e":"2026-12-16","k":"MW","c":"SA","b":"","w":"","n":"","f":"","raw":"Dec 14\u2013Dec 16, 2026"},{"s":"2026-12-17","e":"2026-12-20","k":"TS","c":"CG","b":"","w":"","n":"","f":"","raw":"Dec 17\u2013Dec 20, 2026"},{"s":"2026-12-21","e":"2026-12-23","k":"MW","c":"MO","b":"","w":"","n":"","f":"","raw":"Dec 21\u2013Dec 23, 2026"},{"s":"2026-12-24","e":"2026-12-27","k":"TS","c":"SA","b":"","w":"","n":"Xmas","f":"","raw":"Dec 24\u2013Dec 27, 2026 (Xmas)"},{"s":"2026-12-28","e":"2026-12-30","k":"MW","c":"KR","b":"","w":"","n":"","f":"","raw":"Dec 28\u2013Dec 30, 2026"},{"s":"2026-12-31","e":"2027-01-03","k":"TS","c":"KR","b":"","w":"","n":"New years","f":"","raw":"Dec 31\u2013Jan 3, 2027 (New years)"},{"s":"2027-01-04","e":"2027-01-06","k":"MW","c":"CG","b":"","w":"","n":"","f":"","raw":"Jan 4\u2013Jan 6, 2027"},{"s":"2027-01-07","e":"2027-01-10","k":"TS","c":"MO","b":"","w":"","n":"","f":"","raw":"Jan 7\u2013Jan 10, 2027"},{"s":"2027-01-11","e":"2027-01-13","k":"MW","c":"AG","b":"","w":"Raffetto, Pham Hua","n":"","f":"","raw":"Jan 11\u2013Jan 13, 2027"},{"s":"2027-01-14","e":"2027-01-17","k":"TS","c":"AG","b":"","w":"Raffetto, Pham Hua","n":"","f":"","raw":"Jan 14\u2013Jan 17, 2027"},{"s":"2027-01-18","e":"2027-01-20","k":"MW","c":"CG","b":"","w":"Raffetto, Pham Hua","n":"MLK","f":"","raw":"Jan 18\u2013Jan 20, 2027 (MLK)"},{"s":"2027-01-21","e":"2027-01-24","k":"TS","c":"AT","b":"","w":"Raffetto, Pham Hua","n":"","f":"","raw":"Jan 21\u2013Jan 24, 2027"},{"s":"2027-01-25","e":"2027-01-27","k":"MW","c":"SA","b":"","w":"","n":"","f":"","raw":"Jan 25\u2013Jan 27, 2027"},{"s":"2027-01-28","e":"2027-01-31","k":"TS","c":"CG","b":"","w":"","n":"","f":"","raw":"Jan 28\u2013Jan 31, 2027"},{"s":"2027-02-01","e":"2027-02-03","k":"MW","c":"MO","b":"","w":"","n":"","f":"","raw":"Feb 1\u2013Feb 3, 2027"},{"s":"2027-02-04","e":"2027-02-07","k":"TS","c":"SA","b":"","w":"","n":"","f":"","raw":"Feb 4\u2013Feb 7, 2027"},{"s":"2027-02-08","e":"2027-02-10","k":"MW","c":"JP","b":"","w":"Song, Enokenwa","n":"","f":"","raw":"Feb 8\u2013Feb 10, 2027"},{"s":"2027-02-11","e":"2027-02-14","k":"TS","c":"CG","b":"","w":"Song, Enokenwa","n":"","f":"","raw":"Feb 11\u2013Feb 14, 2027"},{"s":"2027-02-15","e":"2027-02-17","k":"MW","c":"CG","b":"","w":"Song, Enokenwa","n":"","f":"","raw":"Feb 15\u2013Feb 17, 2027"},{"s":"2027-02-18","e":"2027-02-21","k":"TS","c":"BW","b":"","w":"Song, Enokenwa","n":"","f":"","raw":"Feb 18\u2013Feb 21, 2027"},{"s":"2027-02-22","e":"2027-02-24","k":"MW","c":"SA","b":"","w":"","n":"","f":"","raw":"Feb 22\u2013Feb 24, 2027"},{"s":"2027-02-25","e":"2027-02-28","k":"TS","c":"MO","b":"","w":"","n":"","f":"","raw":"Feb 25\u2013Feb 28, 2027"},{"s":"2027-03-01","e":"2027-03-03","k":"MW","c":"CG","b":"","w":"","n":"","f":"","raw":"Mar 1\u2013Mar 3, 2027"},{"s":"2027-03-04","e":"2027-03-07","k":"TS","c":"CG","b":"","w":"","n":"","f":"","raw":"Mar 4\u2013Mar 7, 2027"},{"s":"2027-03-08","e":"2027-03-10","k":"MW","c":"TH","b":"","w":"Oreilly, Munoz","n":"","f":"","raw":"Mar 8\u2013Mar 10, 2027"},{"s":"2027-03-11","e":"2027-03-14","k":"TS","c":"TH","b":"","w":"Oreilly, Munoz","n":"","f":"","raw":"Mar 11\u2013Mar 14, 2027"},{"s":"2027-03-15","e":"2027-03-17","k":"MW","c":"MO","b":"","w":"Oreilly, Munoz","n":"","f":"","raw":"Mar 15\u2013Mar 17, 2027"},{"s":"2027-03-18","e":"2027-03-21","k":"TS","c":"KR","b":"","w":"Oreilly, Munoz","n":"AAD 3/19 - 3/23","f":"","raw":"Mar 18\u2013Mar 21, 2027 (AAD 3/19 - 3/23)"},{"s":"2027-03-22","e":"2027-03-24","k":"MW","c":"MO","b":"","w":"","n":"AAD 3/19 - 3/23","f":"","raw":"Mar 22\u2013Mar 24, 2027 (AAD 3/19 - 3/23)"},{"s":"2027-03-25","e":"2027-03-28","k":"TS","c":"KR","b":"","w":"","n":"","f":"","raw":"Mar 25\u2013Mar 28, 2027"},{"s":"2027-03-29","e":"2027-03-31","k":"MW","c":"SA","b":"","w":"","n":"","f":"","raw":"Mar 29\u2013Mar 31, 2027"},{"s":"2027-04-01","e":"2027-04-04","k":"TS","c":"MO","b":"","w":"","n":"","f":"","raw":"Apr 1\u2013Apr 4, 2027"},{"s":"2027-04-05","e":"2027-04-07","k":"MW","c":"BW","b":"","w":"Krivda","n":"","f":"","raw":"Apr 5\u2013Apr 7, 2027"},{"s":"2027-04-08","e":"2027-04-11","k":"TS","c":"BW","b":"","w":"Krivda","n":"","f":"","raw":"Apr 8\u2013Apr 11, 2027"},{"s":"2027-04-12","e":"2027-04-14","k":"MW","c":"CG","b":"","w":"","n":"","f":"","raw":"Apr 12\u2013Apr 14, 2027"},{"s":"2027-04-15","e":"2027-04-18","k":"TS","c":"SA","b":"","w":"","n":"ASLMS 4/15-17","f":"","raw":"Apr 15\u2013Apr 18, 2027 (ASLMS 4/15-17)"},{"s":"2027-04-19","e":"2027-04-21","k":"MW","c":"BW","b":"","w":"Krivda","n":"","f":"","raw":"Apr 19\u2013Apr 21, 2027"},{"s":"2027-04-22","e":"2027-04-25","k":"TS","c":"MO","b":"","w":"Krivda","n":"","f":"","raw":"Apr 22\u2013Apr 25, 2027"},{"s":"2027-04-26","e":"2027-04-28","k":"MW","c":"SA","b":"","w":"","n":"","f":"","raw":"Apr 26\u2013Apr 28, 2027"},{"s":"2027-04-29","e":"2027-05-02","k":"TS","c":"SA","b":"","w":"","n":"","f":"","raw":"Apr 29\u2013May 2, 2027"},{"s":"2027-05-03","e":"2027-05-05","k":"MW","c":"MO","b":"","w":"","n":"","f":"","raw":"May 3\u2013May 5, 2027"},{"s":"2027-05-06","e":"2027-05-09","k":"TS","c":"MO","b":"","w":"","n":"","f":"","raw":"May 6\u2013May 9, 2027"},{"s":"2027-05-10","e":"2027-05-12","k":"MW","c":"MM","b":"","w":"Alazawi, Lopez","n":"","f":"","raw":"May 10\u2013May 12, 2027"},{"s":"2027-05-13","e":"2027-05-16","k":"TS","c":"MM","b":"","w":"Alazawi, Lopez","n":"","f":"","raw":"May 13\u2013May 16, 2027"},{"s":"2027-05-17","e":"2027-05-19","k":"MW","c":"AT","b":"","w":"Alazawi, Lopez","n":"","f":"","raw":"May 17\u2013May 19, 2027"},{"s":"2027-05-20","e":"2027-05-23","k":"TS","c":"BW","b":"","w":"Alazawi, Lopez","n":"","f":"","raw":"May 20\u2013May 23, 2027"},{"s":"2027-05-24","e":"2027-05-26","k":"MW","c":"CG","b":"","w":"","n":"","f":"","raw":"May 24\u2013May 26, 2027"},{"s":"2027-05-27","e":"2027-05-30","k":"TS","c":"KR","b":"","w":"","n":"Memorial day 5/31","f":"","raw":"May 27\u2013May 30, 2027 (Memorial day 5/31)"},{"s":"2027-05-31","e":"2027-06-02","k":"MW","c":"KR","b":"","w":"","n":"","f":"","raw":"May 31\u2013Jun 2, 2027"},{"s":"2027-06-03","e":"2027-06-06","k":"TS","c":"SA","b":"","w":"","n":"","f":"","raw":"Jun 3\u2013Jun 6, 2027"},{"s":"2027-06-07","e":"2027-06-09","k":"MW","c":"CG","b":"","w":"Kakazu","n":"","f":"","raw":"Jun 7\u2013Jun 9, 2027"},{"s":"2027-06-10","e":"2027-06-13","k":"TS","c":"CG","b":"","w":"Kakazu","n":"","f":"","raw":"Jun 10\u2013Jun 13, 2027"},{"s":"2027-06-14","e":"2027-06-16","k":"MW","c":"SA","b":"","w":"Kakazu","n":"","f":"","raw":"Jun 14\u2013Jun 16, 2027"},{"s":"2027-06-17","e":"2027-06-20","k":"TS","c":"KR","b":"","w":"Kakazu","n":"","f":"","raw":"Jun 17\u2013Jun 20, 2027"},{"s":"2027-06-21","e":"2027-06-23","k":"MW","c":"KR","b":"","w":"","n":"","f":"","raw":"Jun 21\u2013Jun 23, 2027"},{"s":"2027-06-24","e":"2027-06-27","k":"TS","c":"KR","b":"","w":"","n":"","f":"","raw":"Jun 24\u2013Jun 27, 2027"},{"s":"2027-06-28","e":"2027-06-30","k":"MW","c":"CG","b":"","w":"","n":"","f":"","raw":"Jun 28\u2013Jun 30, 2027"},{"s":"2027-07-01","e":"2027-07-04","k":"TS","c":"SA","b":"","w":"","n":"4th of July","f":"","raw":"Jul 1\u2013Jul 4, 2027 (4th of July)"},{"s":"2027-07-05","e":"2027-07-07","k":"MW","c":"KR","b":"","w":"","n":"","f":"","raw":"Jul 5\u2013Jul 7, 2027"},{"s":"2027-07-08","e":"2027-07-11","k":"TS","c":"CG","b":"","w":"","n":"","f":"","raw":"Jul 8\u2013Jul 11, 2027"},{"s":"2027-07-12","e":"2027-07-14","k":"MW","c":"MO","b":"","w":"","n":"","f":"","raw":"Jul 12\u2013Jul 14, 2027"},{"s":"2027-07-15","e":"2027-07-18","k":"TS","c":"SA","b":"","w":"","n":"","f":"","raw":"Jul 15\u2013Jul 18, 2027"},{"s":"2027-07-19","e":"2027-07-21","k":"MW","c":"KR","b":"","w":"","n":"","f":"","raw":"Jul 19\u2013Jul 21, 2027"},{"s":"2027-07-22","e":"2027-07-25","k":"TS","c":"MO","b":"","w":"","n":"","f":"","raw":"Jul 22\u2013Jul 25, 2027"},{"s":"2027-07-26","e":"2027-07-28","k":"MW","c":"CG","b":"","w":"","n":"","f":"","raw":"Jul 26\u2013Jul 28, 2027"},{"s":"2027-07-29","e":"2027-08-01","k":"TS","c":"SA","b":"","w":"","n":"","f":"start","raw":"Jul 19\u2013Aug 1, 2027"},{"s":"2027-08-02","e":"2027-08-04","k":"MW","c":"KR","b":"","w":"","n":"","f":"","raw":"Aug 2\u2013Aug 4, 2027"},{"s":"2027-08-05","e":"2027-08-08","k":"TS","c":"CG","b":"","w":"","n":"","f":"","raw":"Aug 5\u2013Aug 8, 2027"},{"s":"2027-08-09","e":"2027-08-11","k":"MW","c":"MO","b":"","w":"","n":"","f":"","raw":"Aug 9\u2013Aug 11, 2027"},{"s":"2027-08-12","e":"2027-08-15","k":"TS","c":"SA","b":"","w":"","n":"","f":"start","raw":"Aug 14\u2013Aug 15, 2027"},{"s":"2027-08-16","e":"2027-08-18","k":"MW","c":"KR","b":"","w":"","n":"","f":"","raw":"Aug 16\u2013Aug 18, 2027"},{"s":"2027-08-19","e":"2027-08-22","k":"TS","c":"MO","b":"","w":"","n":"","f":"","raw":"Aug 19\u2013Aug 22, 2027"},{"s":"2027-08-23","e":"2027-08-25","k":"MW","c":"SA","b":"","w":"","n":"","f":"","raw":"Aug 23\u2013Aug 25, 2027"},{"s":"2027-08-26","e":"2027-08-29","k":"TS","c":"KR","b":"","w":"","n":"","f":"","raw":"Aug 26\u2013Aug 29, 2027"},{"s":"2027-08-30","e":"2027-09-01","k":"MW","c":"SA","b":"","w":"","n":"","f":"start","raw":"Aug 3\u2013Sep 1, 2027"}]};
+const SNAPSHOT_DATE = "Aug 16, 2026";
+const SHEET_URL = "https://docs.google.com/spreadsheets/d/"+SHEET_ID+"/edit";
+
+const DOW=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+const MONTHS=["January","February","March","April","May","June","July","August","September","October","November","December"];
+const MSHORT=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const MONNUM={jan:1,feb:2,mar:3,apr:4,may:5,jun:6,jul:7,aug:8,sep:9,oct:10,nov:11,dec:12};
+
+const d=s=>{const[y,m,dd]=s.split("-").map(Number);return new Date(y,m-1,dd)};
+const key=t=>t.getFullYear()+"-"+String(t.getMonth()+1).padStart(2,"0")+"-"+String(t.getDate()).padStart(2,"0");
+const addD=(t,n)=>{const x=new Date(t);x.setDate(x.getDate()+n);return x};
+const today=(()=>{const n=new Date();return new Date(n.getFullYear(),n.getMonth(),n.getDate())})();
+const days=(a,b)=>Math.round((b-a)/86400000);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function fmt(a,b){const A=d(a),B=d(b);
+  return MSHORT[A.getMonth()]+" "+A.getDate()+"–"+(A.getMonth()===B.getMonth()?"":MSHORT[B.getMonth()]+" ")+B.getDate()}
+function fmtY(a,b){return fmt(a,b)+", "+d(b).getFullYear()}
+function fmtOne(a){const A=d(a);return MSHORT[A.getMonth()]+" "+A.getDate()+", "+A.getFullYear()}
+
+/* ============================================================
+   Minimal XLSX reader — no libraries.
+   An .xlsx is a ZIP of XML. The browser can already unzip
+   (DecompressionStream) and parse XML (DOMParser), so nothing
+   needs to be downloaded from a CDN.
+   ============================================================ */
+const U16=(v,o)=>v.getUint16(o,true), U32=(v,o)=>v.getUint32(o,true);
+
+async function inflateRaw(bytes){
+  if(typeof DecompressionStream==="function"){
+    const s=new Blob([bytes]).stream().pipeThrough(new DecompressionStream("deflate-raw"));
+    return new Uint8Array(await new Response(s).arrayBuffer());
+  }
+  throw new Error("this browser can't decompress zip data");
+}
+
+/* Read the ZIP central directory and return { path: Uint8Array } */
+async function unzip(buf){
+  const v=new DataView(buf), b=new Uint8Array(buf);
+  let eocd=-1;
+  for(let i=b.length-22;i>=0&&i>b.length-66000;i--){ if(U32(v,i)===0x06054b50){eocd=i;break} }
+  if(eocd<0) throw new Error("not a zip file");
+  const count=U16(v,eocd+10); let p=U32(v,eocd+16);
+  const out={};
+  for(let i=0;i<count;i++){
+    if(U32(v,p)!==0x02014b50) break;
+    const method=U16(v,p+10), csize=U32(v,p+20);
+    const nlen=U16(v,p+28), elen=U16(v,p+30), clen=U16(v,p+32);
+    const lho=U32(v,p+42);
+    const name=new TextDecoder().decode(b.subarray(p+46,p+46+nlen));
+    const ln=U16(v,lho+26), le=U16(v,lho+28);
+    const start=lho+30+ln+le;
+    const raw=b.subarray(start,start+csize);
+    out[name]= method===0 ? raw : await inflateRaw(raw);
+    p+=46+nlen+elen+clen;
+  }
+  return out;
+}
+
+const dec=u=>new TextDecoder().decode(u);
+
+/* DOMParser exists in browsers; Node needs a shim for the test harness only. */
+function xml(text){ return new DOMParser().parseFromString(text,"application/xml") }
+
+/* "BC12" -> 54 (zero-based column index) */
+function colOf(ref){
+  let n=0;
+  for(let i=0;i<ref.length;i++){
+    const c=ref.charCodeAt(i);
+    if(c<65||c>90) break;
+    n=n*26+(c-64);
+  }
+  return n-1;
+}
+
+/* Returns [{name, rows:[[cell,...],...]}, ...] in workbook order */
+async function readXlsx(buf){
+  const z=await unzip(buf);
+  const wb=xml(dec(z["xl/workbook.xml"]));
+  const rels=xml(dec(z["xl/_rels/workbook.xml.rels"]));
+  const relMap={};
+  [...rels.getElementsByTagName("Relationship")].forEach(r=>{
+    let t=r.getAttribute("Target")||"";
+    if(t.startsWith("/")) t=t.slice(1); else if(!t.startsWith("xl/")) t="xl/"+t;
+    relMap[r.getAttribute("Id")]=t.replace("xl/xl/","xl/");
+  });
+
+  /* shared strings: an <si> may hold one <t> or several <r><t> runs */
+  let shared=[];
+  if(z["xl/sharedStrings.xml"]){
+    const ss=xml(dec(z["xl/sharedStrings.xml"]));
+    shared=[...ss.getElementsByTagName("si")].map(si=>
+      [...si.getElementsByTagName("t")].map(t=>t.textContent).join(""));
+  }
+
+  const out=[];
+  for(const sh of [...wb.getElementsByTagName("sheet")]){
+    const name=sh.getAttribute("name");
+    const rid=sh.getAttribute("r:id")||sh.getAttributeNS?.("http://schemas.openxmlformats.org/officeDocument/2006/relationships","id");
+    const path=relMap[rid];
+    if(!path||!z[path]) continue;
+    const doc=xml(dec(z[path]));
+    const rows=[];
+    for(const row of [...doc.getElementsByTagName("row")]){
+      const cells=[];
+      for(const c of [...row.getElementsByTagName("c")]){
+        const ci=colOf(c.getAttribute("r")||"A1");
+        const t=c.getAttribute("t");
+        let val="";
+        if(t==="s"){
+          const v=c.getElementsByTagName("v")[0];
+          val=v?(shared[parseInt(v.textContent,10)]||""):"";
+        } else if(t==="inlineStr"){
+          val=[...c.getElementsByTagName("t")].map(x=>x.textContent).join("");
+        } else {
+          const v=c.getElementsByTagName("v")[0];
+          val=v?v.textContent:"";
+        }
+        while(cells.length<ci) cells.push("");
+        cells[ci]=val;
+      }
+      rows.push(cells);
+    }
+    out.push({name,rows});
+  }
+  return out;
+}
+
+/* ============================================================
+   1. FETCH
+   ============================================================ */
+function endpoints(tab){
+  const bust="&_="+Date.now();
+  const base="https://docs.google.com/spreadsheets/d/"+SHEET_ID;
+  const list=[];
+  if(PUBLISHED_CSV[tab]) list.push(PUBLISHED_CSV[tab]+(PUBLISHED_CSV[tab].includes("?")?"":"?")+bust);
+  list.push(base+"/gviz/tq?tqx=out:csv&sheet="+encodeURIComponent(tab)+bust);
+  const gid=GIDS[tab];
+  if(gid){
+    list.push(base+"/gviz/tq?tqx=out:csv&gid="+gid+bust);
+    list.push(base+"/export?format=csv&gid="+gid+bust);
+  }
+  return list;
+}
+const shortURL=u=>u.replace(/^https:\/\/docs\.google\.com\/spreadsheets\/d\//,"…/")
+                   .replace(/&_=\d+/,"").replace(/173XX_[A-Za-z0-9_-]+/,"{id}").slice(0,96);
+async function fetchTab(tab){
+  let lastErr=null, allMissing=true;
+  for(const url of endpoints(tab)){
+    try{
+      const r=await fetch(url,{redirect:"follow"});
+      DIAG.push({tab,url:shortURL(url),out:"HTTP "+r.status});
+      if(!r.ok){
+        /* 400/404 from gviz means there's no tab by that name — expected for
+           future years we've pre-listed, so it isn't reported as a failure. */
+        if(r.status!==400&&r.status!==404) allMissing=false;
+        lastErr=new Error("HTTP "+r.status);continue}
+      allMissing=false;
+      const t=await r.text();
+      if(/^\s*</.test(t)) {DIAG[DIAG.length-1].out+=" · HTML not CSV";
+        lastErr=new Error("got a sign-in page instead of CSV");continue}
+      if(t.trim().length<20){lastErr=new Error("empty response");continue}
+      DIAG[DIAG.length-1].out="OK · "+t.length.toLocaleString()+" chars";
+      return t;
+    }catch(e){
+      allMissing=false;lastErr=e;
+      DIAG.push({tab,url:shortURL(url),out:"blocked · "+(e.message||String(e))});
+    }
+  }
+  const err=lastErr||new Error("no endpoint responded");
+  err.missing=allMissing;
+  throw err;
+}
+
+/* ============================================================
+   2. PARSE — CSV -> normalized blocks
+   ============================================================ */
+function parseCSV(text,sep){
+  if(!sep){ /* Sheets copies to the clipboard as TSV; downloads are CSV */
+    const head=text.slice(0,4000);
+    sep=(head.split("\t").length>head.split(",").length)?"\t":",";
+  }
+  const rows=[];let row=[],f="",q=false;
+  for(let i=0;i<text.length;i++){
+    const c=text[i];
+    if(q){ if(c==='"'){ if(text[i+1]==='"'){f+='"';i++} else q=false } else f+=c }
+    else if(c==='"') q=true;
+    else if(c===sep) {row.push(f);f=""}
+    else if(c==="\n"){row.push(f);f="";rows.push(row);row=[]}
+    else if(c!=="\r") f+=c;
+  }
+  if(f!==""||row.length){row.push(f);rows.push(row)}
+  return rows;
+}
+function monthNum(tok){
+  const t=(tok||"").trim().toLowerCase();
+  return MONNUM[t.slice(0,3)]||null;
+}
+function cleanName(v){
+  let s=(v||"").replace(/\u00a0/g," ")
+               .replace(/\([^)]*\)?/g,"")      /* parentheticals, even unclosed */
+               .replace(/[()\[\]]/g,"")        /* stray brackets left behind */
+               .replace(/\s+/g," ").trim();
+  if(!s||/^(next year|n\/a|tbd|-|—)$/i.test(s)) return "";
+  let first=s.split(/\s*[,;\/]\s*/)[0].trim();          /* "CW, HR 4/2" -> "CW" */
+  const two=first.match(/^([A-Za-z]{1,3})\s+([A-Za-z]{1,3})$/); /* "MM AG" -> "MM" */
+  if(two) first=two[1];
+  first=first.replace(/\s*\d.*$/,"").trim();             /* drop trailing "4/2" */
+  if(!first) return "";
+  /* Old sheets keep notes in these columns ("FIRST YEARS STARTING CALL").
+     A person is one or two short words; anything longer is a comment. */
+  if(first.length>14 || first.split(" ").length>2 || /\band\b/i.test(first)) return "";
+  return (first.length<=3&&/^[a-z]+$/i.test(first)) ? first.toUpperCase() : first;
+}
+/* true when a cell named more than one person and we had to pick the first */
+function isAmbiguous(v,resolved){
+  const s=(v||"").replace(/\u00a0/g," ").replace(/\([^)]*\)?/g,"").replace(/[()\[\]]/g,"").replace(/\s+/g," ").trim();
+  if(!s||!resolved) return false;
+  return s.toUpperCase()!==resolved.toUpperCase();
+}
+function blockKind(label){
+  const s=(label||"").trim().toLowerCase();
+  if(s.startsWith("mon")) return "MW";
+  if(s.startsWith("thu")) return "TS";
+  return null;
+}
+function parseTab(csv, tabName){ return parseRows(parseCSV(csv), tabName) }
+function parseRows(rows, tabName){
+  /* locate header + column roles */
+  let hdr=-1, cD=1,cC=2,cB=3,cW=4,cK=0;
+  for(let i=0;i<Math.min(8,rows.length);i++){
+    const r=rows[i].map(x=>(x||"").toLowerCase().trim());
+    const di=r.findIndex(x=>x.includes("date"));
+    if(di>=0){
+      hdr=i; cD=di;
+      const ci=r.findIndex(x=>x.includes("call")&&x.includes("resident"));
+      const bi=r.findIndex(x=>x.includes("backup"));
+      const wi=r.findIndex(x=>/^wr\b/.test(x));
+      cC=ci>=0?ci:di+1; cB=bi>=0?bi:di+2; cW=wi>=0?wi:di+3; cK=Math.max(0,di-1);
+      break;
+    }
+  }
+  if(hdr<0) throw new Error("no header row with a Dates column");
+
+  /* base year for tabs whose dates omit the year, e.g. "Call 24-25" -> 2024 */
+  const ym=tabName.match(/(\d{2})\s*[-–—]\s*(\d{2})/);
+  let ctxYear = ym? 2000+parseInt(ym[1],10) : today.getFullYear();
+  let lastMonth=0;
+
+  const out=[]; let prevEnd=null;
+  for(let i=hdr+1;i<rows.length;i++){
+    const r=rows[i]; if(!r) continue;
+    const kind=blockKind(r[cK]); if(!kind) continue;
+    const rawDates=(r[cD]||"").replace(/\n/g," ").trim(); if(!rawDates) continue;
+
+    const noteM=rawDates.match(/\((.*?)\)/);
+    const note=noteM?noteM[1].trim():"";
+    let core=rawDates.replace(/\(.*/,"").trim();
+
+    const yM=core.match(/(\d{4})\s*$/);
+    let year=yM?parseInt(yM[1],10):null;
+    core=core.replace(/,?\s*\d{4}\s*$/,"").trim();
+
+    const parts=core.split(/\s*[–\-—]\s*/).filter(Boolean);
+    if(parts.length<2) continue;
+
+    /* "Sept 30" or bare "2" (inherits the left month) */
+    let leftMon=null;
+    function pd(tok,y,fallbackMon){
+      const m=tok.trim().match(/^([A-Za-z]+)?\.?\s*(\d{1,2})$/);
+      if(!m) return null;
+      const mo=m[1]?monthNum(m[1]):fallbackMon;
+      if(!mo) return null;
+      const dt=new Date(y,mo-1,parseInt(m[2],10));
+      return (dt.getMonth()===mo-1)?dt:null;
+    }
+    const lm=parts[0].trim().match(/^([A-Za-z]+)/);
+    leftMon=lm?monthNum(lm[1]):null;
+
+    if(year===null){                       /* infer year by walking forward */
+      if(leftMon && leftMon<lastMonth) ctxYear++;
+      if(leftMon) lastMonth=leftMon;
+      year=ctxYear;
+    } else { ctxYear=year; lastMonth=leftMon||lastMonth }
+
+    let s=pd(parts[0],year,leftMon);
+    let e=pd(parts[1],year,leftMon);
+    if(s&&e&&s.getMonth()>e.getMonth()){
+      /* a year written in the cell labels the END date ("Dec 31–Jan 3, 2027");
+         a year we inferred from the left month labels the START. */
+      if(yM) s=pd(parts[0],year-1,leftMon);
+      else   e=pd(parts[1],year+1,leftMon);
+    }
+    if(s&&e&&e<s) e=pd(parts[1],s.getFullYear()+1,leftMon);
+
+    const span=kind==="MW"?2:3, wantS=kind==="MW"?1:4, wantE=kind==="MW"?3:0;
+    let start=null, fixed="";
+    if(s&&s.getDay()===wantS) start=s;
+    else if(e&&e.getDay()===wantE){ start=addD(e,-span); fixed="start" }
+    else if(prevEnd){ start=addD(prevEnd,1); fixed="inferred" }
+    else continue;
+    const end=addD(start,span);
+    if(!fixed && e && key(e)!==key(end)) fixed="end";
+    prevEnd=end;
+
+    const cName=cleanName(r[cC]), bName=cleanName(r[cB]);
+    const cRaw=(r[cC]||"").replace(/\s+/g," ").trim();
+    out.push({s:key(start),e:key(end),k:kind,
+      c:cName, b:bName, w:(r[cW]||"").trim(),
+      n:note, f:fixed, raw:rawDates,
+      a:isAmbiguous(r[cC],cName)?cRaw:""});
+  }
+  if(!out.length) throw new Error("no usable rows");
+  return out;
+}
+
+/* ============================================================
+   3. STATE
+   ============================================================ */
+let DATA={}, YEARS=[], ALL=[], me=null, year=null, focus=true;
+let sourceMode="", syncedAt=null, tabErrors=[], tabMissing=[];
+let DIAG=[], probe="", mislabelled=[], dupes=[];
+
+/* Tells "this page can't reach the open internet at all" (a sandbox/CSP block)
+   apart from "it reached Google and Google said no" (a sharing problem). */
+async function probeNetwork(){
+  try{
+    await fetch("https://api.anthropic.com/v1/messages",{method:"POST",body:"{}",
+      headers:{"content-type":"application/json"}});
+    return "outbound requests work — the block is specific to docs.google.com";
+  }catch(e){
+    return "this page can't make any outbound request — the viewer is sandboxing it, not Google";
+  }
+}
+
+const weekThu=b=>b.k==="MW"?addD(d(b.s),3):d(b.s);
+const gkey=b=>{const t=weekThu(b);return t.getFullYear()+"-"+t.getMonth()};
+const role=(b,w)=>b.c===w?"call":(b.b===w?"backup":null);
+const len=b=>b.k==="MW"?3:4;
+function runs(B,who){
+  const out=[];let cur=null;
+  B.forEach(b=>{ if(b.c===who){
+    if(cur&&days(d(cur.e),d(b.s))===1){cur.e=b.e;cur.n++;cur.days+=len(b)}
+    else{if(cur)out.push(cur);cur={s:b.s,e:b.e,n:1,days:len(b)}}}});
+  if(cur)out.push(cur); return out;
+}
+/* Files a parsed sheet under the academic year its dates actually cover.
+   Returns the label used, or "" if it duplicated a year already loaded. */
+function fileUnder(store, askedName, blocks, overwrite){
+  const actual=deriveLabel(blocks), asked=shortLabel(askedName||"");
+  if(store[actual] && !overwrite){ dupes.push({t:askedName||"pasted", was:actual}); return "" }
+  if(asked!==actual && /^AY /.test(asked)) mislabelled.push({t:askedName, asked, actual});
+  store[actual]=blocks;
+  return actual;
+}
+function deriveLabel(bl){
+  const a=d(bl[0].s).getFullYear()%100, b=d(bl[bl.length-1].e).getFullYear()%100;
+  const p2=x=>String(x).padStart(2,"0");
+  return "AY "+p2(a)+"-"+p2(a===b?a+1:b);
+}
+function shortLabel(tab){
+  const m=tab.match(/(\d{2})\s*[-–—]\s*(\d{2})/);
+  return m?("AY "+m[1]+"-"+m[2]):tab;
+}
+
+/* ============================================================
+   4. BOOT
+   ============================================================ */
+async function boot(initial){
+  const sync=document.getElementById("sync"), msg=document.getElementById("syncmsg");
+  sync.className="sync load";
+  msg.textContent = initial? "Reading the sheet…" : "Refreshing…";
+  document.getElementById("srclink").href=SHEET_URL;
+
+  const fresh={}; tabErrors=[]; tabMissing=[]; DIAG=[]; mislabelled=[]; dupes=[];
+
+  /* One request gets every tab, so try it before the per-tab endpoints. */
+  if(WORKBOOK_XLSX){
+    const url=WORKBOOK_XLSX+(WORKBOOK_XLSX.includes("?")?"&":"?")+"_="+Date.now();
+    try{
+      const r=await fetch(url,{redirect:"follow"});
+      DIAG.push({tab:"whole workbook",url:shortURL(url),out:"HTTP "+r.status});
+      if(r.ok){
+        const buf=await r.arrayBuffer();
+        const sheets=await readXlsx(buf);
+        DIAG[DIAG.length-1].out="OK · "+sheets.length+" sheet"+(sheets.length===1?"":"s")+
+          " · "+Math.round(buf.byteLength/1024)+" KB";
+        sheets.forEach(sh=>{
+          let bl=null;
+          try{ bl=parseRows(sh.rows, sh.name) }catch(e){ bl=null }
+          if(bl&&bl.length>=10){
+            const label=fileUnder(fresh, sh.name, bl);
+            DIAG.push({tab:sh.name,url:bl.length+" blocks",out:label?("filed as "+label):"duplicate, skipped"});
+          } else {
+            DIAG.push({tab:sh.name,url:(bl?bl.length+" blocks":"no call rows"),out:"not a call sheet"});
+          }
+        });
+      }
+    }catch(e){
+      DIAG.push({tab:"whole workbook",url:shortURL(url),out:"blocked · "+(e.message||String(e))});
+    }
+  }
+  if(Object.keys(fresh).length){
+    DATA=fresh; sourceMode="live"; syncedAt=new Date();
+    YEARS=Object.keys(DATA).sort();
+    ALL=[...new Set(YEARS.flatMap(y=>DATA[y].flatMap(b=>[b.c,b.b])).filter(Boolean))].sort();
+    finishBoot(); return;
+  }
+
+  const results=await Promise.all(TABS.map(async t=>{
+    try{ return {t, rows:parseTab(await fetchTab(t), t)} }
+    catch(e){ return {t, err:e.message||String(e), missing:!!e.missing} }
+  }));
+  /* A tab is filed under the academic year its dates actually cover, not the name
+     we requested. Google silently serves the wrong sheet when a gid isn't published,
+     and a year mislabelled by one is worse than a year missing. */
+  results.forEach(r=>{
+    if(!r.rows){ (r.missing?tabMissing:tabErrors).push(r); return }
+    fileUnder(fresh, r.t, r.rows);
+  });
+
+  const gotAny=Object.keys(fresh).length>0;
+  if(!gotAny) probe=await probeNetwork();
+  if(gotAny){
+    DATA=fresh; sourceMode = tabErrors.length? "partial" : "live"; syncedAt=new Date();
+  } else if(initial&&!Object.keys(DATA).length){
+    DATA=JSON.parse(JSON.stringify(SNAPSHOT)); sourceMode="snapshot";
+  } else if(!Object.keys(DATA).length){
+    DATA=JSON.parse(JSON.stringify(SNAPSHOT)); sourceMode="snapshot";
+  } else {
+    sourceMode = sourceMode==="snapshot" ? "snapshot" : "stale";
+  }
+
+  YEARS=Object.keys(DATA).sort();
+  ALL=[...new Set(YEARS.flatMap(y=>DATA[y].flatMap(b=>[b.c,b.b])).filter(Boolean))].sort();
+  finishBoot();
+}
+
+function finishBoot(){
+  if(!YEARS.length){ paintSync(); return }
+  if(!year||!DATA[year]){
+    year=YEARS.find(y=>{const b=DATA[y];return today>=d(b[0].s)&&today<=d(b[b.length-1].e)})||YEARS[YEARS.length-1];
+  }
+  if(me===null){
+    try{const h=decodeURIComponent(location.hash.replace("#","")).toUpperCase();
+        if(ALL.includes(h)) me=h;}catch(e){}
+    if(me===null&&ALL.includes(DEFAULT_PERSON)) me=DEFAULT_PERSON;
+  }
+  document.getElementById("boot").hidden=true;
+  document.getElementById("app").hidden=false;
+  buildYearbar(); paintSync(); render();
+}
+
+function paintSync(){
+  const sync=document.getElementById("sync"), msg=document.getElementById("syncmsg");
+  const stamp=syncedAt? syncedAt.toLocaleString(undefined,{month:"short",day:"numeric",hour:"numeric",minute:"2-digit"}) : "";
+  const btn=' <button class="btn" type="button" id="refresh">Try the sheet again</button>';
+  const tabs=Object.keys(DATA).length;
+  const notYet=tabMissing.length
+    ? '<span class="syncdetail">Not loaded: '+
+      tabMissing.map(e=>"<code>"+esc(e.t)+"</code>").join(", ")+
+      '. Either the tab doesn\'t exist yet, or it exists but hasn\'t been published — '+
+      'publish it and paste its link into <code>PUBLISHED_CSV</code> to add the year.</span>' : "";
+
+  const dupNote = dupes.length
+    ? '<span class="syncdetail"><b>'+dupes.length+' link returned a tab that was already loaded.</b> '+
+      dupes.map(x=>"<code>"+esc(x.t)+"</code> served "+esc(x.was)).join(", ")+
+      '. Google ignores <code>?gid=</code> until that sheet is published on its own, so it fell back to the '+
+      'default tab. Publish the sheet you actually want and paste its own link into <code>PUBLISHED_CSV</code>.</span>' : "";
+  const misNote = mislabelled.length
+    ? '<span class="syncdetail">Filed by the dates found, not the name requested: '+
+      mislabelled.map(x=>"<code>"+esc(x.t)+"</code> contained "+esc(x.actual)).join(", ")+'.</span>' : "";
+  if(sourceMode==="live"){
+    sync.className=(dupes.length||mislabelled.length)?"sync warn":"sync ok";
+    msg.innerHTML="Live from the sheet · "+tabs+" tab"+(tabs===1?"":"s")+" · synced "+stamp+btn+dupNote+misNote+notYet;
+  } else if(sourceMode==="partial"){
+    sync.className="sync warn";
+    msg.innerHTML="Live · "+tabs+" tab"+(tabs===1?"":"s")+" loaded, "+tabErrors.length+" failed · synced "+stamp+btn+
+      '<span class="syncdetail">Failed: '+tabErrors.map(e=>"<code>"+esc(e.t)+"</code> ("+esc(e.err)+")").join(", ")+
+      '. Check the tab name still matches <code>TABS</code> in this file.</span>'+dupNote+misNote+notYet;
+  } else if(sourceMode==="pasted"){
+    sync.className="sync ok";
+    msg.innerHTML="Loaded from a local copy · "+tabs+" tab"+(tabs===1?"":"s")+" · "+stamp+btn+
+      '<span class="syncdetail">Nothing was fetched, so this shows the sheet as it was when you copied or saved it. '+
+      'Load it again to pick up swaps.</span>';
+  } else {
+    sync.className="sync err";
+    /* name the one cause that fits, rather than listing possibilities */
+    const sandboxed = /sandbox/.test(probe);
+    const gotHTML   = DIAG.some(x=>/HTML not CSV/.test(x.out));
+    const got401    = DIAG.some(x=>/HTTP (401|403)/.test(x.out));
+    let why;
+    if(sandboxed){
+      why='<b>The page is sandboxed.</b> It can\'t make any outbound request at all — not to Google, '+
+          'not anywhere — so no sharing setting will change this. That\'s the viewer\'s doing, not the sheet\'s. '+
+          'Use <b>Use a file instead</b> below — a downloaded copy of the workbook loads every year at once — '+
+          'or serve this page from a real address.';
+    } else if(gotHTML||got401){
+      why='<b>Google returned a sign-in page instead of data.</b> The published link has most likely been stopped or '+
+          'reissued. In the sheet, <i>File → Share → Publish to web</i>, confirm <i>Entire Document → Microsoft Excel</i> '+
+          'is still published, and paste the current link into <code>WORKBOOK_XLSX</code> near the top of this file.';
+    } else {
+      why='<b>The request got out, but the browser wouldn\'t let this page read the response.</b> That is a cross-origin '+
+          'block, and nothing in the sheet\'s settings changes it — the page has to be served from a real address rather '+
+          'than opened from disk. Quickest way through: open <a href="'+esc(WORKBOOK_XLSX)+'" target="_blank" rel="noopener">'+
+          'the published workbook</a>, save the file, and load it under <b>Use a file instead</b> below. '+
+          (probe?"Probe: "+esc(probe)+".":"");
+    }
+    msg.innerHTML="Couldn\'t read the sheet — showing the "+SNAPSHOT_DATE+" snapshot"+btn+
+      '<span class="syncdetail">'+why+'</span>';
+  }
+
+  /* per-URL detail, so the cause is checkable rather than inferred */
+  const box=document.getElementById("diagbox"), body=document.getElementById("diagbody");
+  if(DIAG.length){
+    box.hidden=false;
+    body.innerHTML='<table class="dtable"><tbody>'+
+      DIAG.map(x=>{
+        const good=/^OK/.test(x.out), bad=!good;
+        return '<tr><td class="t">'+esc(x.tab)+'</td><td>'+esc(x.url)+'</td>'+
+               '<td class="o '+(good?"good":bad?"bad":"")+'">'+esc(x.out)+'</td></tr>';
+      }).join("")+'</tbody></table>'+
+      (probe?'<div class="dsum">Connectivity check: '+esc(probe)+'</div>':"");
+  } else box.hidden=true;
+
+  const rb=document.getElementById("refresh");
+  if(rb) rb.onclick=()=>boot(false);
+  const pb=document.getElementById("pastebox");
+  if(pb) pb.open = (sourceMode==="snapshot");
+}
+
+function buildYearbar(){
+  const yb=document.getElementById("yearbar"); yb.innerHTML="";
+  YEARS.slice().reverse().forEach(y=>{
+    const b=document.createElement("button");b.className="yr";b.type="button";b.dataset.y=y;
+    const B=DATA[y],live=today>=d(B[0].s)&&today<=d(B[B.length-1].e);
+    b.innerHTML=esc(y)+(live?'<span class="tag">NOW</span>':"");
+    b.onclick=()=>{year=y;render()};
+    yb.appendChild(b);
+  });
+}
+
+/* ============================================================
+   5. RENDER
+   ============================================================ */
+function render(){
+  const B=DATA[year]; if(!B) return;
+  const yb=document.getElementById("yearbar");
+  [...yb.children].forEach(el=>el.setAttribute("aria-pressed",el.dataset.y===year));
+  try{ if(location.hash!=="#"+(me||"")) history.replaceState(null,"","#"+(me||"")); }catch(e){}
+
+  const mine=me?B.filter(b=>b.c===me):[];
+  const bkup=me?B.filter(b=>b.b===me):[];
+  const R=me?runs(B,me):[];
+
+  /* pager */
+  const now=B.find(b=>today>=d(b.s)&&today<=d(b.e));
+  const idx=now?B.indexOf(now):-1;
+  const queue=(idx>=0?B.slice(idx+1,idx+4):B.slice(0,3));
+  const pg=document.getElementById("pager");
+  const q=arr=>arr.map(b=>"<b>"+esc(b.c||"—")+"</b> "+fmt(b.s,b.e)).join(" &nbsp;→&nbsp; ");
+  if(now){
+    pg.innerHTML='<div><span class="pl">On call right now</span><span class="pv"><b>'+esc(now.c||"—")+'</b>'+
+      '<span class="sep">/</span>'+fmt(now.s,now.e)+(now.b?'<span class="sep">/</span>backup '+esc(now.b):"")+'</span></div>'+
+      '<div style="flex:1 1 220px"><span class="pl">Up next</span><span class="queue">'+q(queue)+'</span></div>';
+  } else {
+    const ahead=d(B[0].s)>today;
+    pg.innerHTML='<div><span class="pl">'+(ahead?"This year hasn\'t started":"This year is over")+'</span><span class="pv">'+
+      (ahead?'Begins <b>'+fmtOne(B[0].s)+'</b> with <b>'+esc(B[0].c||"—")+'</b>':'Ended <b>'+fmtOne(B[B.length-1].e)+'</b>')+
+      '</span></div><div style="flex:1 1 220px"><span class="pl">Opening blocks</span><span class="queue">'+q(B.slice(0,3))+'</span></div>';
+  }
+
+  /* picker */
+  const cnt={};B.forEach(b=>{if(b.c)cnt[b.c]=(cnt[b.c]||0)+1});
+  /* Who is on this year's roster, plus whoever is currently selected even if
+     they aren't — so switching years never makes your own chip vanish. */
+  const roster=[...new Set(DATA[year].flatMap(b=>[b.c,b.b]).filter(Boolean))].sort();
+  if(me&&!roster.includes(me)) roster.push(me);
+  document.getElementById("picks").innerHTML=
+    roster.map(p=>'<button class="pk'+(cnt[p]?"":" absent")+'" type="button" data-p="'+esc(p)+'" aria-pressed="'+(me===p)+
+      '" title="'+esc(p)+' — '+(cnt[p]||0)+' call blocks in '+esc(year)+'">'+esc(p)+
+      '<span class="ct">'+(cnt[p]||0)+'</span></button>').join("")+
+    '<button class="pk all" type="button" data-p="" aria-pressed="'+(me===null)+'">Everyone</button>';
+  document.getElementById("picks").querySelectorAll("[data-p]").forEach(el=>
+    el.onclick=()=>{me=el.dataset.p||null;render()});
+  document.getElementById("pickhint").textContent=
+    me? me+" · "+(cnt[me]||0)+" call blocks in "+year : "No one selected — showing the whole service";
+
+  /* next card */
+  const nc=document.getElementById("nextcard");
+  if(me){
+    nc.className="card next";
+    const nx=mine.filter(b=>d(b.e)>=today)[0];
+    if(nx){
+      const dd=days(today,d(nx.s)),live=dd<=0;
+      const run=R.find(r=>d(nx.s)>=d(r.s)&&d(nx.e)<=d(r.e));
+      nc.innerHTML='<div class="lbl">'+(live?esc(me)+" is on call now":"Next call for "+esc(me))+'</div>'+
+        '<div class="countdown">'+(live?"Today":dd)+(live?"":'<small>'+(dd===1?"day away":"days away")+'</small>')+'</div>'+
+        '<div class="nextdate">'+fmtY(nx.s,nx.e)+'</div>'+
+        '<div class="nextmeta">'+(nx.k==="MW"?"Mon–Wed · 3 days":"Thurs–Sun · 4 days")+
+          (nx.b?" · backup "+esc(nx.b):"")+(nx.n?' · <span style="color:var(--gold)">'+esc(nx.n)+'</span>':"")+
+          (run&&run.n>1?'<br><span style="color:var(--eosin)">Part of a '+run.days+'-day run, '+fmtY(run.s,run.e)+'</span>':"")+'</div>';
+    } else {
+      const last=mine[mine.length-1]; nc.className="card next neutral";
+      nc.innerHTML='<div class="lbl">Next call for '+esc(me)+'</div>'+
+        '<div class="countdown sm" style="color:var(--ink-2)">'+(mine.length?"None left":"Not on this year")+'</div>'+
+        '<div class="nextmeta">'+(last?"Last block was "+fmtY(last.s,last.e)+".":esc(me)+" has no call blocks listed in "+esc(year)+".")+'</div>';
+    }
+  } else {
+    nc.className="card next neutral";
+    const upc=B.filter(b=>d(b.e)>=today)[0];
+    nc.innerHTML='<div class="lbl">'+esc(year)+' overview</div>'+
+      '<div class="countdown sm" style="color:var(--ink)">'+B.length+'<small>blocks · '+Object.keys(cnt).length+' residents</small></div>'+
+      '<div class="nextmeta">'+fmtOne(B[0].s)+' through '+fmtOne(B[B.length-1].e)+'.'+
+      (upc?' Next block up: <b>'+esc(upc.c||"—")+'</b>, '+fmtY(upc.s,upc.e)+'.':"")+
+      '<br>Pick initials above to focus the page on one person.</div>';
+  }
+
+  /* stats */
+  const stat=(cap,val,cls,sub)=>'<div><div class="lbl">'+cap+'</div><div class="num '+cls+'">'+val+
+    '</div><div class="cap">'+sub+'</div></div>';
+  const mi=document.getElementById("mini");
+  if(me){
+    const dOn=mine.reduce((a,b)=>a+len(b),0);
+    const wknd=mine.filter(b=>b.k==="TS").length;
+    const yrDays=days(d(B[0].s),d(B[B.length-1].e))+1;
+    const long=R.reduce((a,r)=>r.days>a.days?r:a,{days:0});
+    const b2b=R.filter(r=>r.n>1).length;
+    mi.innerHTML=
+      stat("Call blocks",mine.length,"pink","of "+B.length+" this year")+
+      stat("Days on call",dOn,"pink",(dOn/yrDays*100).toFixed(1)+"% of the year")+
+      stat("Weekend blocks",wknd,"","Thurs–Sun")+
+      stat("Weekday blocks",mine.length-wknd,"","Mon–Wed")+
+      stat("Longest stretch",long.days?long.days+"d":"—","pink",
+           long.days?fmtY(long.s,long.e)+(long.n>1?" · "+long.n+" blocks":""):"no blocks")+
+      stat("Back-to-back runs",b2b,b2b?"pink":"",bkup.length?bkup.length+" blocks as backup":"no backup listed");
+  } else {
+    const wknd=B.filter(b=>b.k==="TS").length, withBk=B.filter(b=>b.b).length;
+    const vals=Object.values(cnt).sort((a,b)=>b-a);
+    mi.innerHTML=
+      stat("Blocks",B.length,"","in "+esc(year))+
+      stat("Residents",Object.keys(cnt).length,"","taking call")+
+      stat("Weekend blocks",wknd,"","Thurs–Sun")+
+      stat("Weekday blocks",B.length-wknd,"","Mon–Wed")+
+      stat("Heaviest load",vals[0]||0,"pink",vals[0]?"lightest "+vals[vals.length-1]+" blocks":"—")+
+      stat("Backup filled",withBk,withBk?"blue":"",withBk+" of "+B.length+" blocks");
+  }
+
+  /* holidays */
+  const hol=(me?mine:B).filter(b=>b.n);
+  document.getElementById("holistrip").innerHTML=hol.length
+    ? '<span class="lbl">'+(me?esc(me)+" has":"Flagged")+'</span>'+
+      hol.map(b=>'<span class="pill gold">'+esc(b.n)+' · '+fmt(b.s,b.e)+'</span>').join("")
+    : '<span class="lbl">'+(me?esc(me)+" has no flagged holidays or meetings this year":"No holiday or meeting notes in this year")+'</span>';
+
+  /* ribbon */
+  const rb=document.getElementById("ribbon");rb.innerHTML="";
+  B.forEach(b=>{
+    const t=document.createElement("div");
+    t.className="tick"+(me&&b.c===me?" me":(me&&b.b===me?" mb":""))+(d(b.e)<today?" past":"");
+    if(today>=d(b.s)&&today<=d(b.e))t.classList.add("today-mark");
+    t.title=fmt(b.s,b.e)+"  ·  "+(b.c||"—")+(b.b?" (backup "+b.b+")":"")+(b.n?"  ·  "+b.n:"");
+    t.onclick=()=>{const m=document.getElementById("m-"+gkey(b));
+      if(m){m.scrollIntoView({behavior:"smooth",block:"center"});m.style.boxShadow="0 0 0 2px var(--eosin)";
+        setTimeout(()=>m.style.boxShadow="",1400)}};
+    rb.appendChild(t);
+  });
+  const sc=document.getElementById("ribscale");sc.innerHTML="";
+  const rn=[];B.forEach(b=>{const m=weekThu(b).getMonth();
+    if(rn.length&&rn[rn.length-1].m===m)rn[rn.length-1].n++;else rn.push({m,n:1})});
+  rn.forEach(r=>{const s=document.createElement("span");s.style.flex=r.n+" 0 0";
+    s.textContent=r.n>=4?MSHORT[r.m]:"";sc.appendChild(s)});
+  document.getElementById("ribleg").innerHTML=
+    (me?'<span><i style="background:var(--eosin)"></i>'+esc(me)+' on call</span><span><i style="background:var(--hema)"></i>'+esc(me)+' as backup</span>':"")+
+    '<span><i style="background:var(--quiet-2);border:1px solid var(--rule)"></i>'+(me?"Someone else":"Every block")+'</span>'+
+    '<span><i style="background:var(--ink);width:1px;height:11px;border-radius:0"></i>Today</span>';
+
+  /* calendar */
+  const ct=document.getElementById("controls");
+  ct.innerHTML='<button class="chip" type="button" id="cf" aria-pressed="'+(focus&&!!me)+'"'+
+    (me?"":' disabled style="opacity:.4;cursor:default"')+'>Fade the rest</button>'+
+    '<span class="hint" style="margin-left:4px">Weeks start Monday, so each row is one Mon–Wed block and one Thurs–Sun block.</span>';
+  if(me)document.getElementById("cf").onclick=()=>{focus=!focus;render()};
+  document.getElementById("filterhint").textContent=me?("Highlighting "+me):"Showing everyone";
+
+  const cal=document.getElementById("months");cal.innerHTML="";
+  cal.className="months"+((me&&focus)?" dimmed":"");
+  const byStart=new Map(B.map(b=>[b.s,b]));
+  let cur=d(B[0].s);while(cur.getDay()!==1)cur=addD(cur,-1);
+  const stop=d(B[B.length-1].e),groups=new Map();
+  while(cur<=stop){const thu=addD(cur,3),gk=thu.getFullYear()+"-"+thu.getMonth();
+    if(!groups.has(gk))groups.set(gk,{y:thu.getFullYear(),m:thu.getMonth(),weeks:[]});
+    groups.get(gk).weeks.push(new Date(cur));cur=addD(cur,7)}
+  groups.forEach((g,gk)=>{
+    const el=document.createElement("div");el.className="month";el.id="m-"+gk;
+    let h='<div class="mtitle"><b>'+MONTHS[g.m]+'</b><span class="yr4">'+g.y+'</span></div>'+
+      '<div class="dow">'+DOW.map(x=>"<span>"+x[0]+"</span>").join("")+'</div>';
+    g.weeks.forEach(mon=>{
+      h+='<div class="week">';
+      [[0,"mw",2],[3,"ts",3]].forEach(([off,cls,span])=>{
+        const st=addD(mon,off),en=addD(st,span),b=byStart.get(key(st));
+        if(!b){h+='<div class="blk empty '+cls+'"></div>';return}
+        let c="blk "+cls;
+        if(me&&b.c===me)c+=" me";else if(me&&b.b===me)c+=" mb";
+        if(d(b.e)<today)c+=" past";
+        if(today>=d(b.s)&&today<=d(b.e))c+=" today";
+        h+='<div class="'+c+'" title="'+esc(fmt(b.s,b.e)+" · "+(b.c||"—")+(b.b?" / bk "+b.b:"")+(b.a?"  [sheet says: "+b.a+"]":""))+'">'+
+           '<div class="days"><span>'+st.getDate()+'</span><span>'+en.getDate()+'</span></div><div>'+
+           '<div class="who">'+esc(b.c||"—")+'</div>'+
+           (b.b?'<div class="bk">bk '+esc(b.b)+'</div>':"")+
+           (b.n?'<div class="note">'+esc(b.n)+'</div>':"")+'</div></div>';
+      });
+      h+='</div>';
+    });
+    el.innerHTML=h;cal.appendChild(el);
+  });
+
+  /* table */
+  const rows=me?B.filter(b=>role(b,me)):B.filter(b=>d(b.e)>=today).slice(0,14);
+  const b2bRuns=R.filter(r=>r.n>1);
+  document.getElementById("mineTitle").textContent=me?(me+"'s blocks"):"What's coming up";
+  document.getElementById("mineHint").textContent=me
+    ? rows.filter(b=>d(b.e)>=today).length+" still ahead · "+b2bRuns.length+" back-to-back run"+(b2bRuns.length===1?"":"s")
+    : "Next "+rows.length+" blocks from "+MSHORT[today.getMonth()]+" "+today.getDate();
+  const runSet=new Set();
+  b2bRuns.forEach(r=>B.forEach(b=>{if(b.c===me&&d(b.s)>=d(r.s)&&d(b.e)<=d(r.e))runSet.add(b.s)}));
+  document.getElementById("minetable").innerHTML=
+    '<thead><tr><th>Dates</th><th>Block</th><th>'+(me?"Role":"On call")+'</th><th>'+(me?"Paired with":"Backup")+'</th><th>Notes</th></tr></thead><tbody>'+
+    (rows.length?rows.map((b,i)=>{
+      const past=d(b.e)<today,live=today>=d(b.s)&&today<=d(b.e);
+      const nx=rows[i+1],linked=me&&runSet.has(b.s)&&nx&&runSet.has(nx.s)&&days(d(b.e),d(nx.s))===1;
+      return '<tr class="'+(past?"done ":"")+(linked?"linked":"")+'">'+
+        '<td class="dt">'+fmtY(b.s,b.e)+(live?' <span class="pill solid">now</span>':"")+'</td>'+
+        '<td class="kind">'+(b.k==="MW"?"MON–WED":"THU–SUN")+'</td>'+
+        '<td>'+(me?(b.c===me?'<span class="pill">On call</span>':'<span class="pill blue">Backup</span>')
+                 :'<span class="pill">'+esc(b.c||"—")+'</span>')+'</td>'+
+        '<td class="kind">'+esc(me?(b.c===me?(b.b||"—"):b.c):(b.b||"—"))+'</td>'+
+        '<td>'+(me&&runSet.has(b.s)?'<span class="pill">back-to-back</span> ':"")+
+             (b.n?'<span class="pill gold">'+esc(b.n)+'</span> ':"")+
+             (b.w?'<span class="pill grey">WR '+esc(b.w)+'</span>':"")+'</td></tr>';
+    }).join(""):'<tr><td colspan="5" style="color:var(--ink-3)">No blocks listed for '+esc(me)+' in '+esc(year)+'.</td></tr>')+
+    '</tbody>';
+
+  /* loads */
+  const bkc={};B.forEach(b=>{if(b.b)bkc[b.b]=(bkc[b.b]||0)+1});
+  const ord=Object.entries(cnt).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0]));
+  const max=ord.length?ord[0][1]:1;
+  document.getElementById("loads").innerHTML=ord.map(([p,n])=>
+    '<div class="load'+(p===me?" me":"")+'" data-p="'+esc(p)+'" role="button" tabindex="0" title="'+esc(p)+'">'+
+    '<span class="ini">'+esc(p)+'</span><span class="track"><span class="fill" style="width:'+(n/max*100)+'%"></span></span>'+
+    '<span class="n">'+n+(bkc[p]?' <em>+'+bkc[p]+' bk</em>':"")+'</span></div>').join("");
+  document.querySelectorAll(".load[data-p]").forEach(el=>{
+    const go=()=>{me=el.dataset.p;render()};
+    el.onclick=go; el.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();go()}};
+  });
+  const tot=ord.reduce((a,x)=>a+x[1],0);
+  document.getElementById("loadhint").textContent=
+    (tot===B.length?tot+" blocks":tot+" of "+B.length+" blocks assigned")+" · "+ord.length+" residents · click a bar to switch";
+
+  /* notes */
+  const fixes=B.filter(b=>b.f), nobk=B.filter(b=>!b.b).length, amb=B.filter(b=>b.a);
+  document.getElementById("notes").innerHTML=
+    '<b>Rebuilt from the sheet on every load, not retyped.</b> Each row is checked against the weekday label in the first column '+
+    '(Mon–Wed blocks must start on a Monday, Thurs–Sun on a Thursday). Where the two disagreed, the endpoint that matched its weekday won — '+
+    'so a typo in the sheet shows up here as a note rather than a wrong date.'+
+    '<ul>'+
+    (fixes.length?fixes.map(b=>'<li>Sheet says <code>'+esc(b.raw)+'</code> — shown here as <b>'+fmtY(b.s,b.e)+'</b>'+
+      (b.f==="inferred"?" (inferred from the previous block)":"")+'.</li>').join("")
+      :'<li>No date conflicts in this tab.</li>')+
+    (nobk?'<li><b>'+nobk+' of '+B.length+' blocks have no backup listed.</b> Those cells are blank in the sheet, not dropped here.</li>':"")+
+    (amb.length?'<li><b>'+amb.length+' cell'+(amb.length===1?"":"s")+' named more than one person</b> (swaps and hand-offs). '+
+      'The first name is used and the original is in the tooltip: '+
+      amb.slice(0,6).map(b=>"<code>"+esc(b.a)+"</code> \u2192 "+esc(b.c)).join(", ")+
+      (amb.length>6?" and "+(amb.length-6)+" more":"")+'.</li>':"")+
+    '<li>Initials are folded to uppercase, so <code>bw</code> and <code>BW</code> count as one person. Entries longer than three characters are left as written.</li>'+
+    '<li>Parenthetical asides in a resident cell (like <code>ML (prev CW)</code>) are trimmed to the current name.</li>'+
+    '<li>Your selection lives in the address bar (<code>#'+esc(me||"")+'</code>), so a bookmark reopens on the same person.</li>'+
+    '<li>Edits in the sheet show up here on refresh'+(REFRESH_ON_FOCUS?", and automatically when you come back to this tab":"")+'.</li>'+
+    '</ul>';
+
+  document.getElementById("stamp").textContent="Viewed "+MSHORT[today.getMonth()]+" "+today.getDate()+", "+today.getFullYear();
+}
+
+/* ---------- paste path: works regardless of sharing, fetching, or sandboxing ---------- */
+function loadPasted(){
+  const msg=document.getElementById("pastemsg");
+  const raw=document.getElementById("pastearea").value;
+  if(!raw.trim()){msg.className="pmsg bad";msg.textContent="Nothing pasted yet.";return}
+  let blocks;
+  try{ blocks=parseTab(raw,"") }
+  catch(e){
+    msg.className="pmsg bad";
+    msg.textContent="Couldn't read that — "+(e.message||e)+". Include the header row.";
+    return;
+  }
+  const yLabel=fileUnder(DATA,"",blocks,true);
+  year=yLabel;
+  msg.className="pmsg good";
+  msg.textContent="Loaded "+blocks.length+" blocks as "+yLabel+".";
+  document.getElementById("pastearea").value="";
+  afterLocalLoad();
+}
+function afterLocalLoad(){
+  YEARS=Object.keys(DATA).sort();
+  ALL=[...new Set(YEARS.flatMap(y=>DATA[y].flatMap(b=>[b.c,b.b])).filter(Boolean))].sort();
+  if(me===null&&ALL.includes(DEFAULT_PERSON)) me=DEFAULT_PERSON;
+  if(!year||!DATA[year]) year=YEARS[YEARS.length-1];
+  sourceMode="pasted"; syncedAt=new Date();
+  document.getElementById("boot").hidden=true;
+  document.getElementById("app").hidden=false;
+  buildYearbar(); paintSync(); render();
+}
+document.getElementById("pasteload").onclick=loadPasted;
+
+document.getElementById("filepick").onchange=async ev=>{
+  const f=ev.target.files&&ev.target.files[0]; if(!f) return;
+  const msg=document.getElementById("pastemsg");
+  msg.className="pmsg"; msg.textContent="Reading "+f.name+"…";
+  try{
+    if(/\.xlsx$/i.test(f.name)){
+      const sheets=await readXlsx(await f.arrayBuffer());
+      const got=[];
+      for(const sh of sheets){
+        let bl=null;
+        try{ bl=parseRows(sh.rows, sh.name) }catch(e){ bl=null }
+        if(bl&&bl.length>=10){ const l=fileUnder(DATA,sh.name,bl,true); if(l) got.push(l) }
+      }
+      if(!got.length) throw new Error("no call sheets found in that workbook");
+      year=got[got.length-1];
+      msg.className="pmsg good"; msg.textContent="Loaded "+got.join(", ")+" from "+f.name+".";
+    } else {
+      const bl=parseTab(await f.text(),"");
+      year=fileUnder(DATA,"",bl,true);
+      msg.className="pmsg good"; msg.textContent="Loaded "+bl.length+" blocks as "+year+".";
+    }
+    afterLocalLoad();
+  }catch(e){
+    msg.className="pmsg bad"; msg.textContent="Couldn\'t read that file — "+(e.message||e);
+  }
+  ev.target.value="";
+};
+
+if(REFRESH_ON_FOCUS){
+  document.addEventListener("visibilitychange",()=>{
+    if(!document.hidden && syncedAt && sourceMode!=="pasted" && sourceMode!=="snapshot"
+       && Date.now()-syncedAt.getTime()>120000) boot(false);
+  });
+}
+boot(true);
+</script>
+</body>
+</html>
